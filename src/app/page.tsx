@@ -1,65 +1,307 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  MessageSquare,
+  Zap,
+  BarChart3,
+  Shield,
+  Check,
+  ArrowRight,
+  Sparkles,
+} from "lucide-react";
+import Link from "next/link";
+
+const features = [
+  {
+    icon: MessageSquare,
+    title: "AI 智能回复",
+    description:
+      "好评自动感谢、差评智能挽回，根据买家语气和商品类型生成个性化回复，告别千篇一律的模板。",
+  },
+  {
+    icon: Zap,
+    title: "多平台接入",
+    description:
+      "支持抖音小店、淘宝、拼多多、TikTok Shop 等主流平台，一个后台管理所有店铺评论。",
+  },
+  {
+    icon: BarChart3,
+    title: "数据看板",
+    description:
+      "实时监控店铺评分趋势、好评率变化、客服回复率，用数据驱动运营决策。",
+  },
+  {
+    icon: Shield,
+    title: "安全可靠",
+    description:
+      "数据加密传输，不存储敏感信息。AI 生成回复后由你审核发布，完全可控。",
+  },
+];
+
+const pricingPlans = [
+  {
+    name: "免费版",
+    price: "¥0",
+    period: "永久免费",
+    description: "适合个人卖家体验",
+    features: [
+      "每天 20 条 AI 回复",
+      "1 个店铺接入",
+      "基础回复模板",
+      "邮件支持",
+    ],
+    cta: "免费开始",
+    variant: "outline" as const,
+  },
+  {
+    name: "Pro 版",
+    price: "¥199",
+    period: "/月",
+    description: "适合成长型店铺",
+    features: [
+      "无限 AI 回复",
+      "3 个店铺接入",
+      "AI 客服机器人",
+      "评论情感分析",
+      "自定义回复风格",
+      "优先客服支持",
+    ],
+    cta: "开始试用",
+    variant: "primary" as const,
+    popular: true,
+  },
+  {
+    name: "企业版",
+    price: "¥999",
+    period: "/月",
+    description: "适合多店铺商家",
+    features: [
+      "无限 AI 回复",
+      "不限店铺数量",
+      "专属 AI 模型训练",
+      "高级数据看板",
+      "API 接口",
+      "专属客户经理",
+      "定制化开发",
+    ],
+    cta: "联系销售",
+    variant: "outline" as const,
+  },
+];
+
+export default function LandingPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex flex-col min-h-screen">
+      {/* Navbar */}
+      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-lg dark:border-gray-800 dark:bg-gray-950/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-blue-600" />
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                ReviewAI
+              </span>
+            </div>
+            <nav className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-400">
+              <a href="#features" className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                功能
+              </a>
+              <a href="#pricing" className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                价格
+              </a>
+              <a href="#" className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                文档
+              </a>
+            </nav>
+            <div className="flex items-center gap-3">
+              <Link href="/login">
+                <Button variant="ghost" size="sm">
+                  登录
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button variant="primary" size="sm">
+                  免费注册
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/30 dark:via-purple-950/30 dark:to-pink-950/30" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+          <div className="text-center max-w-3xl mx-auto">
+            <Badge variant="default" className="mb-6 px-4 py-1.5 text-sm">
+              ✨ AI 驱动的电商评论管理工具
+            </Badge>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
+              让你的店铺
+              <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                自动回复每一条评论
+              </span>
+            </h1>
+            <p className="mt-6 text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+              连接抖音、淘宝、拼多多等平台，AI 自动生成个性化回复。
+              好评感谢、差评挽回，节省 90% 客服人力，提升店铺评分。
+            </p>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/register">
+                <Button variant="primary" size="xl">
+                  免费开始使用
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </Link>
+              <Button variant="outline" size="xl">
+                查看演示
+              </Button>
+            </div>
+            <p className="mt-4 text-sm text-gray-400">
+              无需信用卡 · 免费版永久可用
+            </p>
+          </div>
+
+          {/* Stats */}
+          <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto text-center">
+            {[
+              { value: "10,000+", label: "活跃商家" },
+              { value: "500万+", label: "AI 回复数" },
+              { value: "98.5%", label: "好评率提升" },
+              { value: "90%", label: "人力节省" },
+            ].map((stat) => (
+              <div key={stat.label}>
+                <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-gray-500 mt-1">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="py-24 bg-white dark:bg-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold">
+              一个人管理所有评论
+            </h2>
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
+              AI 帮你处理 90% 的重复工作，你只需要审核和优化
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature) => (
+              <Card key={feature.title} className="border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center mb-2">
+                    <feature.icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <CardTitle>{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="py-24 bg-gray-50 dark:bg-gray-900/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold">简单透明的定价</h2>
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
+              从小卖家到企业级，都有适合的方案
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {pricingPlans.map((plan) => (
+              <Card
+                key={plan.name}
+                className={`relative ${
+                  plan.popular
+                    ? "border-blue-500 shadow-xl shadow-blue-500/10 scale-105"
+                    : "border-gray-100 dark:border-gray-800"
+                }`}
+              >
+                {plan.popular && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
+                    最受欢迎
+                  </Badge>
+                )}
+                <CardHeader>
+                  <CardTitle>{plan.name}</CardTitle>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold">{plan.price}</span>
+                    <span className="text-gray-500 text-sm ml-1">
+                      {plan.period}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500">{plan.description}</p>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {plan.features.map((f) => (
+                    <div key={f} className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-green-500 shrink-0" />
+                      <span className="text-gray-600 dark:text-gray-400">{f}</span>
+                    </div>
+                  ))}
+                </CardContent>
+                <div className="p-6 pt-0">
+                  <Link href="/register">
+                    <Button
+                      variant={plan.variant}
+                      className="w-full"
+                      size="lg"
+                    >
+                      {plan.cta}
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 bg-white dark:bg-gray-950">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold">
+            准备好节省 90% 的客服时间了吗？
+          </h2>
+          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
+            注册即享免费版，无需信用卡。升级 Pro 随时取消。
           </p>
+          <div className="mt-8">
+            <Link href="/register">
+              <Button variant="primary" size="xl">
+                免费开始使用
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-100 dark:border-gray-800 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
+          <p>© 2026 ReviewAI. All rights reserved.</p>
         </div>
-      </main>
+      </footer>
     </div>
   );
 }
