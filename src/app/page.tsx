@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,8 +12,10 @@ import {
   Check,
   ArrowRight,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const features = [
   {
@@ -54,7 +57,8 @@ const pricingPlans = [
       "邮件支持",
     ],
     cta: "免费开始",
-    variant: "outline" as const,
+    href: "/register",
+    plan: "free" as const,
   },
   {
     name: "Pro 版",
@@ -70,7 +74,8 @@ const pricingPlans = [
       "优先客服支持",
     ],
     cta: "开始试用",
-    variant: "primary" as const,
+    href: "/register",
+    plan: "pro" as const,
     popular: true,
   },
   {
@@ -88,11 +93,45 @@ const pricingPlans = [
       "定制化开发",
     ],
     cta: "联系销售",
-    variant: "outline" as const,
+    href: "/register",
+    plan: "enterprise" as const,
   },
 ];
 
 export default function LandingPage() {
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handlePricingCTA = async (plan: string) => {
+    if (plan === "free") {
+      router.push("/register");
+      return;
+    }
+    if (plan === "enterprise") {
+      router.push("/register");
+      return;
+    }
+
+    // Pro 版：走 Stripe 支付
+    setLoadingPlan(plan);
+    try {
+      const res = await fetch("/api/stripe/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || "支付创建失败，请稍后重试");
+      }
+    } catch {
+      alert("网络错误，请稍后重试");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
@@ -260,15 +299,22 @@ export default function LandingPage() {
                   ))}
                 </CardContent>
                 <div className="p-6 pt-0">
-                  <Link href="/register">
-                    <Button
-                      variant={plan.variant}
-                      className="w-full"
-                      size="lg"
-                    >
-                      {plan.cta}
-                    </Button>
-                  </Link>
+                  <Button
+                    variant={plan.plan === "pro" ? "primary" : "outline"}
+                    className="w-full"
+                    size="lg"
+                    onClick={() => handlePricingCTA(plan.plan)}
+                    disabled={loadingPlan === plan.plan}
+                  >
+                    {loadingPlan === plan.plan ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        跳转中...
+                      </>
+                    ) : (
+                      plan.cta
+                    )}
+                  </Button>
                 </div>
               </Card>
             ))}
@@ -300,6 +346,14 @@ export default function LandingPage() {
       <footer className="border-t border-gray-100 dark:border-gray-800 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
           <p>© 2026 ReviewAI. All rights reserved.</p>
+          <div className="flex items-center justify-center gap-4 mt-2">
+            <Link href="/privacy" className="hover:text-gray-700 dark:hover:text-gray-300">
+              隐私政策
+            </Link>
+            <Link href="/terms" className="hover:text-gray-700 dark:hover:text-gray-300">
+              服务条款
+            </Link>
+          </div>
         </div>
       </footer>
     </div>

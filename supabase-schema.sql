@@ -95,7 +95,7 @@ CREATE POLICY "Users can read own subscription" ON subscriptions
 CREATE TABLE user_settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
-  default_tone TEXT DEFAULT 'professional' CHECK (tone IN ('professional', 'friendly', 'apologetic', 'enthusiastic')),
+  default_tone TEXT DEFAULT 'professional' CHECK (default_tone IN ('professional', 'friendly', 'apologetic', 'enthusiastic')),
   auto_publish_good BOOLEAN DEFAULT true,
   auto_publish_medium BOOLEAN DEFAULT false,
   auto_publish_bad BOOLEAN DEFAULT false,

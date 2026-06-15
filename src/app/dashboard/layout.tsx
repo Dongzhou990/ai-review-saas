@@ -43,18 +43,17 @@ export default function DashboardLayout({
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const supabaseRef = useRef<SupabaseClient | null>(null);
+  const supabaseRef = useRef<SupabaseClient>(null as any);
 
   const getSupabase = () => {
     if (!supabaseRef.current) {
       supabaseRef.current = createClient();
     }
-    return supabaseRef.current;
+    return supabaseRef.current!;
   };
 
   const handleLogout = async () => {
-    const supabase = getSupabase();
-    await supabase.auth.signOut();
+    await getSupabase().auth.signOut();
     router.push("/");
     router.refresh();
   };

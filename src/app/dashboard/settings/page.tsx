@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
@@ -9,183 +9,277 @@ import {
   Store,
   Plus,
   Check,
-  Link as LinkIcon,
+  Loader2,
   Trash2,
-  MessageSquare,
-  Zap,
+  Sparkles,
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
-// 模拟已连接店铺
-const connectedStores = [
-  {
-    id: 1,
-    name: "数码好物旗舰店",
-    platform: "抖音小店",
-    status: "connected",
-    reviewCount: 234,
-    lastSync: "5分钟前",
-  },
-  {
-    id: 2,
-    name: "品质生活馆",
-    platform: "淘宝",
-    status: "connected",
-    reviewCount: 156,
-    lastSync: "12分钟前",
-  },
+interface StoreRecord {
+  id: string;
+  name: string;
+  platform: string;
+  status: string;
+  review_count: number;
+  last_sync_at: string | null;
+}
+
+const PLATFORMS = [
+  { name: "抖音小店", icon: "🎵" },
+  { name: "淘宝", icon: "🛒" },
+  { name: "拼多多", icon: "📱" },
+  { name: "TikTok Shop", icon: "🌍" },
+  { name: "京东", icon: "🏪" },
+  { name: "Shopee", icon: "🛍️" },
 ];
 
-const platformOptions = [
-  { name: "抖音小店", icon: "🎵", available: true },
-  { name: "淘宝", icon: "🛒", available: true },
-  { name: "拼多多", icon: "📱", available: true },
-  { name: "TikTok Shop", icon: "🌍", available: false },
-  { name: "京东", icon: "🏪", available: false },
-  { name: "Shopee", icon: "🛍️", available: false },
+const TONES = [
+  { label: "专业礼貌", value: "professional" },
+  { label: "亲切温暖", value: "friendly" },
+  { label: "诚恳道歉", value: "apologetic" },
+  { label: "热情感激", value: "enthusiastic" },
 ];
 
 export default function SettingsPage() {
-  const [showAddStore, setShowAddStore] = useState(false);
+  const supabase = createClient();
+  const [stores, setStores] = useState<StoreRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const [newStoreName, setNewStoreName] = useState("");
+  const [newStorePlatform, setNewStorePlatform] = useState("抖音小店");
+  const [savingTone, setSavingTone] = useState(false);
+  const [defaultTone, setDefaultTone] = useState("professional");
+  const [autoPublish, setAutoPublish] = useState({ good: true, medium: false, bad: false });
+
+  const loadData = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: storeData } = await supabase
+      .from("stores")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (storeData) setStores(storeData);
+
+    const { data: settings } = await supabase
+      .from("user_settings")
+      .select("*")
+      .eq("user_id", user.id)
+      .single();
+
+    if (settings) {
+      setDefaultTone(settings.default_tone || "professional");
+      setAutoPublish({
+        good: settings.auto_publish_good ?? true,
+        medium: settings.auto_publish_medium ?? false,
+        bad: settings.auto_publish_bad ?? false,
+      });
+    }
+
+    setLoading(false);
+  }, [supabase]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const handleAddStore = async () => {
+    if (!newStoreName.trim()) return;
+    setAdding(true);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase.from("stores").insert({
+      user_id: user.id,
+      name: newStoreName.trim(),
+      platform: newStorePlatform,
+      status: "active",
+    });
+
+    if (!error) {
+      setNewStoreName("");
+      setNewStorePlatform("抖音小店");
+      loadData();
+    }
+    setAdding(false);
+  };
+
+  const handleRemoveStore = async (id: string) => {
+    await supabase.from("stores").delete().eq("id", id);
+    setStores((prev) => prev.filter((s) => s.id !== id));
+  };
+
+  const handleToneChange = async (tone: string) => {
+    setDefaultTone(tone);
+    setSavingTone(true);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase.from("user_settings").upsert({
+      user_id: user.id,
+      default_tone: tone,
+    });
+    setSavingTone(false);
+  };
+
+  const handleAutoPublishChange = async (key: string, value: boolean) => {
+    setAutoPublish((prev) => ({ ...prev, [key]: value }));
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const updates: Record<string, boolean> = {};
+    if (key === "good") updates.auto_publish_good = value;
+    if (key === "medium") updates.auto_publish_medium = value;
+    if (key === "bad") updates.auto_publish_bad = value;
+
+    await supabase.from("user_settings").upsert({ user_id: user.id, ...updates });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-3xl">
-      {/* 已连接店铺 */}
+      {/* Stores */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>已连接店铺</CardTitle>
-            <CardDescription>
-              管理已接入 AI 评论回复的电商店铺
-            </CardDescription>
+            <CardDescription>管理已接入 AI 评论回复的电商店铺</CardDescription>
           </div>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setShowAddStore(true)}
-          >
-            <Plus className="w-4 h-4" />
-            添加店铺
+          <Button variant="primary" size="sm" onClick={() => setAdding(true)}>
+            <Plus className="w-4 h-4" /> 添加店铺
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
-          {connectedStores.map((store) => (
-            <div
-              key={store.id}
-              className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-800"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <Store className="w-5 h-5 text-blue-600" />
+          {stores.length === 0 ? (
+            <p className="text-center py-6 text-gray-400">还没有店铺，点击上方添加</p>
+          ) : (
+            stores.map((store) => (
+              <div
+                key={store.id}
+                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-800"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <Store className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{store.name}</span>
+                      <Badge variant="success">
+                        {store.status === "active" ? "已连接" : store.status}
+                      </Badge>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {store.platform} · {store.review_count || 0} 条评论
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-500"
+                  onClick={() => handleRemoveStore(store.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))
+          )}
+
+          {/* Add store form */}
+          {adding && (
+            <div className="mt-4 p-4 rounded-lg border-2 border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/10">
+              <div className="space-y-3">
+                <div>
+                  <Label>平台</Label>
+                  <div className="grid grid-cols-3 gap-2 mt-1">
+                    {PLATFORMS.map((p) => (
+                      <button
+                        key={p.name}
+                        onClick={() => setNewStorePlatform(p.name)}
+                        className={`flex items-center gap-2 p-2 rounded-lg border text-sm transition-all ${
+                          newStorePlatform === p.name
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30"
+                            : "border-gray-200 dark:border-gray-700"
+                        }`}
+                      >
+                        <span>{p.icon}</span>
+                        <span className="text-xs">{p.name}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{store.name}</span>
-                    <Badge variant="success">已连接</Badge>
-                  </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
-                    <span>{store.platform}</span>
-                    <span>{store.reviewCount} 条评论</span>
-                    <span>同步: {store.lastSync}</span>
-                  </div>
+                  <Label htmlFor="store-name">店铺名称</Label>
+                  <Input
+                    id="store-name"
+                    placeholder="输入店铺名称"
+                    value={newStoreName}
+                    onChange={(e) => setNewStoreName(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="primary" size="sm" onClick={handleAddStore} disabled={!newStoreName.trim()}>
+                    <Check className="w-4 h-4" /> 添加
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => { setAdding(false); setNewStoreName(""); }}>
+                    取消
+                  </Button>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600">
-                <Trash2 className="w-4 h-4" />
-              </Button>
             </div>
-          ))}
+          )}
         </CardContent>
       </Card>
 
-      {/* 添加店铺表单 */}
-      {showAddStore && (
-        <Card className="border-blue-200 dark:border-blue-800">
-          <CardHeader>
-            <CardTitle>添加新店铺</CardTitle>
-            <CardDescription>选择平台并授权连接</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <Label>选择平台</Label>
-                <div className="grid grid-cols-3 gap-3 mt-2">
-                  {platformOptions.map((platform) => (
-                    <button
-                      key={platform.name}
-                      disabled={!platform.available}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-lg border text-sm transition-all ${
-                        platform.available
-                          ? "border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer"
-                          : "border-gray-100 dark:border-gray-800 opacity-50 cursor-not-allowed"
-                      }`}
-                    >
-                      <span className="text-2xl">{platform.icon}</span>
-                      <span className="text-xs">{platform.name}</span>
-                      {!platform.available && (
-                        <Badge variant="gray" className="text-[10px]">
-                          即将支持
-                        </Badge>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="store-name">店铺名称</Label>
-                <Input id="store-name" placeholder="输入你的店铺名称" />
-              </div>
-
-              <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50 text-sm text-gray-600 dark:text-gray-400">
-                <p className="flex items-center gap-2">
-                  <LinkIcon className="w-4 h-4" />
-                  我们将跳转到平台授权页面，授权后即可自动同步评论数据。
-                </p>
-              </div>
-
-              <div className="flex gap-3">
-                <Button variant="primary">
-                  <LinkIcon className="w-4 h-4" />
-                  前往授权
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowAddStore(false)}
-                >
-                  取消
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* AI 回复设置 */}
+      {/* AI Reply Settings */}
       <Card>
         <CardHeader>
-          <CardTitle>AI 回复设置</CardTitle>
-          <CardDescription>自定义 AI 回复的风格和规则</CardDescription>
+          <CardTitle>
+            <span className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-blue-600" />
+              AI 回复设置
+            </span>
+          </CardTitle>
+          <CardDescription>自定义 AI 回复的风格和自动发布规则</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <Label>回复风格</Label>
+            <Label>默认回复风格</Label>
+            {savingTone && (
+              <span className="text-xs text-blue-600 ml-2">保存中...</span>
+            )}
             <div className="grid grid-cols-4 gap-3 mt-2">
-              {[
-                { label: "专业礼貌", value: "professional", active: true },
-                { label: "亲切温暖", value: "friendly", active: false },
-                { label: "诚恳道歉", value: "apologetic", active: false },
-                { label: "热情感激", value: "enthusiastic", active: false },
-              ].map((style) => (
+              {TONES.map((tone) => (
                 <button
-                  key={style.value}
+                  key={tone.value}
+                  onClick={() => handleToneChange(tone.value)}
                   className={`flex items-center justify-center gap-2 p-3 rounded-lg border text-sm transition-all ${
-                    style.active
+                    defaultTone === tone.value
                       ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700"
                       : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
                   }`}
                 >
-                  {style.active && <Check className="w-4 h-4" />}
-                  {style.label}
+                  {defaultTone === tone.value && <Check className="w-4 h-4" />}
+                  {tone.label}
                 </button>
               ))}
             </div>
@@ -195,64 +289,44 @@ export default function SettingsPage() {
             <Label>自动发布规则</Label>
             <div className="space-y-3 mt-2">
               {[
-                {
-                  label: "好评自动发布",
-                  desc: "4-5 星评论的 AI 回复自动发布，无需审核",
-                },
-                {
-                  label: "中评审核后发布",
-                  desc: "3 星评论的 AI 回复需要你审核后再发布",
-                },
-                {
-                  label: "差评手动处理",
-                  desc: "1-2 星评论需要你手动编写或确认 AI 回复",
-                },
-              ].map((rule) => (
-                <div
-                  key={rule.label}
-                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50"
-                >
-                  <div>
-                    <span className="text-sm font-medium">{rule.label}</span>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {rule.desc}
-                    </p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      defaultChecked
-                    />
-                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600" />
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+                { key: "good", label: "好评自动发布", desc: "4-5 星评论无需审核直接发布" },
+                { key: "medium", label: "中评审核后发布", desc: "3 星评论需要你审核后再发布" },
+                { key: "bad", label: "差评手动处理", desc: "1-2 星评论需手动确认" },
+              ].map((rule) => {
+                const checked =
+                  rule.key === "good"
+                    ? autoPublish.good
+                    : rule.key === "medium"
+                    ? autoPublish.medium
+                    : autoPublish.bad;
 
-      {/* API 设置 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>API 密钥</CardTitle>
-          <CardDescription>管理你的 API 访问密钥，用于自定义集成</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-yellow-500" />
-                <span className="text-sm font-medium">Secret API Key</span>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                用于自定义集成和自动化工作流
-              </p>
+                return (
+                  <div
+                    key={rule.key}
+                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50"
+                  >
+                    <div>
+                      <span className="text-sm font-medium">{rule.label}</span>
+                      <p className="text-xs text-gray-500 mt-0.5">{rule.desc}</p>
+                    </div>
+                    <button
+                      role="switch"
+                      aria-checked={checked}
+                      onClick={() => handleAutoPublishChange(rule.key, !checked)}
+                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                        checked ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          checked ? "translate-x-4" : "translate-x-[2px]"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
-            <Button variant="outline" size="sm">
-              生成密钥
-            </Button>
           </div>
         </CardContent>
       </Card>

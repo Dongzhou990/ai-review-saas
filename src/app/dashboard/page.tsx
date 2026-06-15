@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -7,9 +8,9 @@ import {
   TrendingDown,
   MessageSquare,
   Star,
-  Clock,
   CheckCircle,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import {
   LineChart,
@@ -23,100 +24,189 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { createClient } from "@/lib/supabase/client";
 
-// 模拟数据
-const stats = [
-  {
-    label: "今日新评论",
-    value: 48,
-    change: "+12%",
-    trend: "up",
-    icon: MessageSquare,
-  },
-  {
-    label: "平均评分",
-    value: 4.8,
-    change: "+0.2",
-    trend: "up",
-    icon: Star,
-  },
-  {
-    label: "AI 回复率",
-    value: "94%",
-    change: "+5%",
-    trend: "up",
-    icon: CheckCircle,
-  },
-  {
-    label: "待处理差评",
-    value: 3,
-    change: "-2",
-    trend: "down",
-    icon: AlertTriangle,
-  },
-];
-
-const ratingTrend = [
-  { date: "6/7", rating: 4.6 },
-  { date: "6/8", rating: 4.7 },
-  { date: "6/9", rating: 4.5 },
-  { date: "6/10", rating: 4.8 },
-  { date: "6/11", rating: 4.7 },
-  { date: "6/12", rating: 4.9 },
-  { date: "6/13", rating: 4.8 },
-];
-
-const sentimentData = [
-  { name: "好评", value: 78, color: "#22c55e" },
-  { name: "中评", value: 15, color: "#eab308" },
-  { name: "差评", value: 7, color: "#ef4444" },
-];
-
-const recentReviews = [
-  {
-    id: 1,
-    buyer: "张先生",
-    rating: 5,
-    content: "质量非常好，物流也很快，已经是第二次购买了！",
-    product: "智能蓝牙耳机",
-    time: "10分钟前",
-    status: "replied",
-  },
-  {
-    id: 2,
-    buyer: "李女士",
-    rating: 2,
-    content: "收到的商品和描述不符，颜色有偏差，而且有轻微划痕。",
-    product: "USB-C 充电线",
-    time: "25分钟前",
-    status: "pending",
-  },
-  {
-    id: 3,
-    buyer: "王同学",
-    rating: 4,
-    content: "还不错，就是包装可以再加强一下，运输途中盒子有点压扁了。",
-    product: "无线鼠标",
-    time: "1小时前",
-    status: "replied",
-  },
-  {
-    id: 4,
-    buyer: "赵女士",
-    rating: 5,
-    content: "性价比超高！推荐给朋友了，朋友也买了一个。",
-    product: "手机支架",
-    time: "2小时前",
-    status: "replied",
-  },
-];
+interface Stats {
+  todayReviews: number;
+  avgRating: number;
+  replyRate: number;
+  pendingBad: number;
+}
 
 export default function DashboardPage() {
+  const supabase = createClient();
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [trend, setTrend] = useState<{ date: string; rating: number }[]>([]);
+  const [sentiment, setSentiment] = useState<
+    { name: string; value: number; color: string }[]
+  >([]);
+  const [recentReviews, setRecentReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadData = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const now = new Date();
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+
+    // Stats
+    const { count: todayCount } = await supabase
+      .from("reviews")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .gte("created_at", todayStart.toISOString());
+
+    const { data: allReviews } = await supabase
+      .from("reviews")
+      .select("rating, status")
+      .eq("user_id", user.id);
+
+    const { data: todayReplies } = await supabase
+      .from("replies")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .gte("created_at", todayStart.toISOString());
+
+    if (allReviews) {
+      const avg =
+        allReviews.length > 0
+          ? allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length
+          : 0;
+      const replied = allReviews.filter((r) => r.status === "replied").length;
+      const bad = allReviews.filter(
+        (r) => r.rating <= 2 && r.status === "pending"
+      ).length;
+
+      setStats({
+        todayReviews: todayCount || 0,
+        avgRating: Math.round(avg * 10) / 10,
+        replyRate:
+          allReviews.length > 0
+            ? Math.round((replied / allReviews.length) * 100)
+            : 0,
+        pendingBad: bad,
+      });
+
+      // Sentiment
+      const good = allReviews.filter((r) => r.rating >= 4).length;
+      const mid = allReviews.filter((r) => r.rating === 3).length;
+      const badCount = allReviews.filter((r) => r.rating <= 2).length;
+      setSentiment([
+        { name: "好评", value: good, color: "#22c55e" },
+        { name: "中评", value: mid, color: "#eab308" },
+        { name: "差评", value: badCount, color: "#ef4444" },
+      ]);
+    }
+
+    // Trend (last 7 days)
+    const trendData: { date: string; rating: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dayStart = new Date(d.setHours(0, 0, 0, 0));
+      const dayEnd = new Date(d.setHours(23, 59, 59, 999));
+
+      const { data: dayReviews } = await supabase
+        .from("reviews")
+        .select("rating")
+        .eq("user_id", user.id)
+        .gte("created_at", dayStart.toISOString())
+        .lte("created_at", dayEnd.toISOString());
+
+      trendData.push({
+        date: `${d.getMonth() + 1}/${d.getDate()}`,
+        rating:
+          dayReviews && dayReviews.length > 0
+            ? Math.round(
+                (dayReviews.reduce((s, r) => s + r.rating, 0) /
+                  dayReviews.length) *
+                  10
+              ) / 10
+            : 0,
+      });
+    }
+    setTrend(trendData);
+
+    // Recent reviews
+    const { data: recent } = await supabase
+      .from("reviews")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    if (recent) {
+      const ids = recent.map((r) => r.id);
+      const { data: replies } = await supabase
+        .from("replies")
+        .select("*")
+        .in("review_id", ids)
+        .eq("user_id", user.id);
+
+      setRecentReviews(
+        recent.map((r) => ({
+          ...r,
+          reply: replies?.find((rp) => rp.review_id === r.id),
+        }))
+      );
+    }
+
+    setLoading(false);
+  }, [supabase]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  const statCards = stats
+    ? [
+        {
+          label: "今日新评论",
+          value: stats.todayReviews,
+          change: "",
+          trend: "up" as const,
+          icon: MessageSquare,
+        },
+        {
+          label: "平均评分",
+          value: stats.avgRating || "--",
+          change: "",
+          trend: "up" as const,
+          icon: Star,
+        },
+        {
+          label: "回复率",
+          value: `${stats.replyRate}%`,
+          change: "",
+          trend: "up" as const,
+          icon: CheckCircle,
+        },
+        {
+          label: "待处理差评",
+          value: stats.pendingBad,
+          change: "",
+          trend: stats.pendingBad > 0 ? ("down" as const) : ("up" as const),
+          icon: AlertTriangle,
+        },
+      ]
+    : [];
+
   return (
     <div className="space-y-6">
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => (
+        {statCards.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -142,53 +232,42 @@ export default function DashboardPage() {
                   />
                 </div>
               </div>
-              <div className="mt-2 flex items-center gap-1">
-                {stat.trend === "up" ? (
-                  <TrendingUp className="w-4 h-4 text-green-500" />
-                ) : (
-                  <TrendingDown className="w-4 h-4 text-red-500" />
-                )}
-                <span
-                  className={`text-xs ${
-                    stat.trend === "up" ? "text-green-500" : "text-red-500"
-                  }`}
-                >
-                  {stat.change} 较昨日
-                </span>
-              </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Charts */}
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>评分趋势</CardTitle>
+            <CardTitle>评分趋势（近 7 天）</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={ratingTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} />
-                <YAxis domain={[4, 5]} stroke="#9ca3af" fontSize={12} />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="rating"
-                  stroke="url(#gradient)"
-                  strokeWidth={2}
-                  dot={{ fill: "#6366f1", r: 4 }}
-                />
-                <defs>
-                  <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#2563eb" />
-                    <stop offset="100%" stopColor="#9333ea" />
-                  </linearGradient>
-                </defs>
-              </LineChart>
-            </ResponsiveContainer>
+            {trend.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={trend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} />
+                  <YAxis domain={[0, 5]} stroke="#9ca3af" fontSize={12} />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="rating"
+                    stroke="url(#gradient)"
+                    strokeWidth={2}
+                    dot={{ fill: "#6366f1", r: 4 }}
+                  />
+                  <defs>
+                    <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#2563eb" />
+                      <stop offset="100%" stopColor="#9333ea" />
+                    </linearGradient>
+                  </defs>
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-center py-10 text-gray-400">暂无数据</p>
+            )}
           </CardContent>
         </Card>
 
@@ -197,37 +276,43 @@ export default function DashboardPage() {
             <CardTitle>评论情感分布</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie
-                  data={sentimentData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {sentimentData.map((entry) => (
-                    <Cell key={entry.name} fill={entry.color} />
+            {sentiment.some((s) => s.value > 0) ? (
+              <>
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={sentiment}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {sentiment.map((entry) => (
+                        <Cell key={entry.name} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex flex-col gap-2 ml-4">
+                  {sentiment.map((item) => (
+                    <div key={item.name} className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {item.name} {item.value}
+                      </span>
+                    </div>
                   ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="flex flex-col gap-2 ml-4">
-              {sentimentData.map((item) => (
-                <div key={item.name} className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {item.name} {item.value}%
-                  </span>
                 </div>
-              ))}
-            </div>
+              </>
+            ) : (
+              <p className="text-center py-10 text-gray-400">暂无数据</p>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -236,50 +321,54 @@ export default function DashboardPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>最新评论</CardTitle>
-          <a
-            href="/dashboard/reviews"
-            className="text-sm text-blue-600 hover:underline"
-          >
-            查看全部
-          </a>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {recentReviews.map((review) => (
-              <div
-                key={review.id}
-                className="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-              >
-                <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-medium">
-                  {review.buyer[0]}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">{review.buyer}</span>
-                    <span className="text-yellow-500 text-sm">
-                      {"★".repeat(review.rating)}
-                      {"☆".repeat(5 - review.rating)}
-                    </span>
-                    <Badge
-                      variant={
-                        review.status === "replied" ? "success" : "warning"
-                      }
-                      className="text-xs"
-                    >
-                      {review.status === "replied" ? "已回复" : "待回复"}
-                    </Badge>
+          {recentReviews.length === 0 ? (
+            <p className="text-center py-8 text-gray-400">
+              还没有评论，去连接店铺吧
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {recentReviews.map((review) => (
+                <div
+                  key={review.id}
+                  className="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                >
+                  <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-medium">
+                    {review.buyer_name[0]}
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-1">
-                    {review.content}
-                  </p>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
-                    <span>{review.product}</span>
-                    <span>{review.time}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">
+                        {review.buyer_name}
+                      </span>
+                      <span className="text-yellow-500 text-sm">
+                        {"★".repeat(review.rating)}
+                        {"☆".repeat(5 - review.rating)}
+                      </span>
+                      <Badge
+                        variant={review.reply ? "success" : "warning"}
+                        className="text-xs"
+                      >
+                        {review.reply ? "已回复" : "待回复"}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-1">
+                      {review.content}
+                    </p>
+                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+                      <span>{review.product_name}</span>
+                      <span>
+                        {new Date(review.created_at).toLocaleDateString(
+                          "zh-CN"
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
