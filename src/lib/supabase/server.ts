@@ -4,24 +4,27 @@ import { cookies } from "next/headers";
 export async function createServerSupabase() {
   const cookieStore = await cookies();
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // Cookies can only be modified in Server Actions or Route Handlers
-          }
-        },
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // Use fallback during build/prerender
+  const finalUrl = url && url !== "your-supabase-url" ? url : "https://placeholder.supabase.co";
+  const finalKey = key && key !== "your-supabase-anon-key" ? key : "placeholder";
+
+  return createServerClient(finalUrl, finalKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
       },
-    }
-  );
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          );
+        } catch {
+          // Cookies can only be modified in Server Actions or Route Handlers
+        }
+      },
+    },
+  });
 }
