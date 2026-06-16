@@ -13,6 +13,9 @@ import {
   ArrowRight,
   Sparkles,
   Loader2,
+  CreditCard,
+  Copy,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -99,38 +102,17 @@ const pricingPlans = [
 ];
 
 export default function LandingPage() {
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [showPayment, setShowPayment] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const router = useRouter();
 
-  const handlePricingCTA = async (plan: string) => {
+  const handlePricingCTA = (plan: string) => {
     if (plan === "free") {
       router.push("/register");
       return;
     }
-    if (plan === "enterprise") {
-      router.push("/register");
-      return;
-    }
-
-    // Pro 版：走 Stripe 支付
-    setLoadingPlan(plan);
-    try {
-      const res = await fetch("/api/stripe/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert(data.error || "支付创建失败，请稍后重试");
-      }
-    } catch {
-      alert("网络错误，请稍后重试");
-    } finally {
-      setLoadingPlan(null);
-    }
+    // Pro / Enterprise: 微信支付弹窗
+    setShowPayment(plan);
   };
   return (
     <div className="flex flex-col min-h-screen">
@@ -300,20 +282,12 @@ export default function LandingPage() {
                 </CardContent>
                 <div className="p-6 pt-0">
                   <Button
-                    variant={plan.plan === "pro" ? "primary" : "outline"}
+                    variant={plan.plan !== "free" ? "primary" : "outline"}
                     className="w-full"
                     size="lg"
                     onClick={() => handlePricingCTA(plan.plan)}
-                    disabled={loadingPlan === plan.plan}
                   >
-                    {loadingPlan === plan.plan ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        跳转中...
-                      </>
-                    ) : (
-                      plan.cta
-                    )}
+                    {plan.cta}
                   </Button>
                 </div>
               </Card>
@@ -329,7 +303,7 @@ export default function LandingPage() {
             准备好节省 90% 的客服时间了吗？
           </h2>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-            注册即享免费版，无需信用卡。升级 Pro 随时取消。
+            注册即享免费版，无需信用卡。满意后扫码升级 Pro 解锁无限次数。
           </p>
           <div className="mt-8">
             <Link href="/register">
@@ -341,6 +315,59 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Payment Modal */}
+      {showPayment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowPayment(null)}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold">
+                {showPayment === "pro" ? "升级 Pro 版 · ¥199/月" : "升级企业版 · ¥999/月"}
+              </h2>
+              <button onClick={() => setShowPayment(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* QR Code Placeholder */}
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-8 mb-4 text-center">
+              <div className="w-48 h-48 mx-auto bg-white rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600">
+                <div className="text-center text-gray-400">
+                  <CreditCard className="w-12 h-12 mx-auto mb-2" />
+                  <p className="text-sm font-medium">微信 / 支付宝收款码</p>
+                  <p className="text-xs mt-1">替换为你的收款码图片</p>
+                </div>
+              </div>
+              <p className="text-sm text-gray-500 mt-4">
+                {showPayment === "pro" ? "扫码支付 ¥199/月" : "扫码支付 ¥999/月"}
+              </p>
+            </div>
+
+            {/* Steps */}
+            <div className="space-y-2 mb-4 text-sm text-gray-600 dark:text-gray-400">
+              <p className="font-medium text-gray-900 dark:text-gray-100">📱 开通步骤：</p>
+              <p>1. 截图或长按识别二维码付款</p>
+              <p>2. 添加微信：<button
+                onClick={() => { navigator.clipboard.writeText("your_wechat_id"); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                className="text-blue-600 hover:underline font-medium"
+              >
+                {copied ? "已复制！" : "点击复制微信号"}
+              </button></p>
+              <p>3. 发送付款截图 + 注册邮箱</p>
+              <p>4. 我们 5 分钟内为你开通 Pro 权限</p>
+            </div>
+
+            <div className="flex gap-2">
+              <Link href="/register" className="flex-1">
+                <Button variant="outline" className="w-full">先免费试用</Button>
+              </Link>
+              <Button variant="primary" className="flex-1" onClick={() => setShowPayment(null)}>
+                已付款，联系客服
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-gray-100 dark:border-gray-800 py-12">
