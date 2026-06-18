@@ -51,12 +51,17 @@ export async function generateAIReply(params: GenerateReplyParams): Promise<stri
 
 请生成回复：`;
 
-  // 优先使用 Claude API，fallback 到 DeepSeek
-  if (process.env.ANTHROPIC_API_KEY) {
+  // 使用已配置的 API Key
+  const apiKey = process.env.ANTHROPIC_API_KEY || process.env.DEEPSEEK_API_KEY;
+  const baseUrl = process.env.ANTHROPIC_BASE_URL || "";
+
+  if (apiKey) {
+    // DeepSeek 的 Anthropic 兼容接口
+    if (baseUrl.includes("deepseek")) {
+      return generateWithDeepSeek(systemPrompt, userPrompt, apiKey);
+    }
+    // 原生 Anthropic API
     return generateWithClaude(systemPrompt, userPrompt);
-  }
-  if (process.env.DEEPSEEK_API_KEY) {
-    return generateWithDeepSeek(systemPrompt, userPrompt);
   }
 
   // 本地 fallback：基于规则的回复模板
@@ -83,12 +88,13 @@ async function generateWithClaude(systemPrompt: string, userPrompt: string): Pro
   return data.content[0].text;
 }
 
-async function generateWithDeepSeek(systemPrompt: string, userPrompt: string): Promise<string> {
+async function generateWithDeepSeek(systemPrompt: string, userPrompt: string, apiKey?: string): Promise<string> {
+  const key = apiKey || process.env.DEEPSEEK_API_KEY || process.env.ANTHROPIC_API_KEY;
   const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+      Authorization: `Bearer ${key}`,
     },
     body: JSON.stringify({
       model: "deepseek-chat",

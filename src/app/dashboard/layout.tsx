@@ -5,11 +5,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { Logo, LogoIcon } from "@/components/logo";
 import {
   LayoutDashboard,
   MessageSquare,
   Settings,
-  Sparkles,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -67,12 +67,11 @@ export default function DashboardLayout({
         }`}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2 h-16 px-4 border-b border-gray-200 dark:border-gray-800">
-          <Sparkles className="w-6 h-6 text-blue-600 shrink-0" />
-          {!collapsed && (
-            <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              ReviewAI
-            </span>
+        <div className="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-800">
+          {collapsed ? (
+            <LogoIcon size={24} />
+          ) : (
+            <Logo size={28} />
           )}
         </div>
 

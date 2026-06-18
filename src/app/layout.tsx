@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ReviewAI - AI 电商评论管理，自动回复 + 智能客服",
+  title: "Kuki AI - AI 电商评论管理，自动回复 + 智能客服",
   description:
     "用 AI 自动管理电商评论和客服回复。连接抖音、淘宝、拼多多等平台，节省 90% 人力，提升店铺评分。",
   keywords: [
+    "Kuki AI",
     "AI评论回复",
     "电商客服",
     "AI客服",

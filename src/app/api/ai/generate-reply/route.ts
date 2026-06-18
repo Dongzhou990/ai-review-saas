@@ -68,10 +68,11 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ reply });
-  } catch (error) {
-    console.error("AI reply generation failed:", error);
+  } catch (error: any) {
+    const msg = error?.message || String(error);
+    console.error("AI reply generation failed:", msg);
     return NextResponse.json(
-      { error: "AI 回复生成失败，请稍后重试" },
+      { error: `AI 生成失败: ${msg}` },
       { status: 500 }
     );
   }

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>淘宝千牛 - AI回复演示</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+.phone {
+  width: 390px;
+  height: 844px;
+  background: #f5f5f5;
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  position: relative;
+}
+.status-bar {
+  background: #1a1a1a;
+  color: #fff;
+  padding: 12px 28px 8px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 500;
+}
+.app-header {
+  background: #ff5000;
+  color: #fff;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.app-header .title { font-size: 17px; font-weight: 600; }
+.app-header .back { font-size: 15px; }
+.review-list {
+  padding: 12px;
+}
+.review-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.buyer-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.buyer-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b35, #ff5000);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 600;
+}
+.buyer-info { flex: 1; }
+.buyer-name { font-size: 15px; font-weight: 600; }
+.stars { color: #ff9500; font-size: 13px; }
+.product-tag {
+  font-size: 12px; color: #999; margin-top: 2px;
+}
+.review-content {
+  font-size: 14px; color: #333; line-height: 1.6;
+  margin: 10px 0; padding: 10px; background: #fafafa; border-radius: 8px;
+}
+/* AI Reply Box */
+.ai-reply {
+  margin-top: 8px;
+  padding: 14px;
+  background: linear-gradient(135deg, #f0f7ff, #f5f3ff);
+  border-radius: 10px;
+  border-left: 3px solid #6366f1;
+  position: relative;
+}
+.ai-reply-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #6366f1; color: #fff; padding: 3px 10px;
+  border-radius: 12px; font-size: 11px; font-weight: 600;
+  margin-bottom: 8px;
+}
+.ai-reply-tag .bolt { font-size: 13px; }
+.ai-reply-text {
+  font-size: 14px; color: #374151; line-height: 1.7;
+}
+.action-row {
+  display: flex; gap: 8px; margin-top: 10px;
+}
+.btn {
+  padding: 7px 14px; border-radius: 16px; font-size: 13px;
+  font-weight: 500; border: none; cursor: pointer;
+}
+.btn-publish {
+  background: #ff5000; color: #fff;
+}
+.btn-edit {
+  background: #fff; color: #ff5000; border: 1px solid #ff5000;
+}
+.btn-regenerate {
+  background: #fff; color: #6366f1; border: 1px solid #6366f1;
+}
+/* Watermark */
+.watermark {
+  text-align: center; padding: 20px;
+  color: #999; font-size: 13px;
+}
+.watermark a { color: #6366f1; text-decoration: none; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="status-bar">
+    <span>9:41</span>
+    <span>📶 🔋</span>
+  </div>
+  <div class="app-header">
+    <span class="back">← 返回</span>
+    <span class="title">评价管理</span>
+    <span>⚙️</span>
+  </div>
+
+  <div class="review-list">
+
+    <!-- Review 1: 5-star -->
+    <div class="review-card">
+      <div class="buyer-row">
+        <div class="buyer-avatar">张</div>
+        <div class="buyer-info">
+          <div class="buyer-name">张先生</div>
+          <div class="stars">★★★★★</div>
+          <div class="product-tag">商品：智能蓝牙耳机</div>
+        </div>
+      </div>
+      <div class="review-content">
+        质量非常好，物流也很快，已经是第二次购买了！音质比预期的好很多，续航也很给力。
+      </div>
+      <div class="ai-reply">
+        <div class="ai-reply-tag"><span class="bolt">⚡</span> AI 智能回复</div>
+        <div class="ai-reply-text">
+          张先生您好！看到您的五星好评非常感动✨ 更高兴的是您已经是回头客了，这说明我们的产品确实经得起考验！音质和续航是这款耳机重点优化的方向，能获得您的认可是我们最大的动力。有任何使用问题随时联系，期待第三次见面！🎧
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn btn-publish">一键发布</button>
+        <button class="btn btn-edit">修改</button>
+        <button class="btn btn-regenerate">换一个</button>
+      </div>
+    </div>
+
+    <!-- Review 2: 1-star -->
+    <div class="review-card">
+      <div class="buyer-row">
+        <div class="buyer-avatar" style="background:linear-gradient(135deg,#ec4899,#f97316)">李</div>
+        <div class="buyer-info">
+          <div class="buyer-name">李女士</div>
+          <div class="stars">★☆☆☆☆</div>
+          <div class="product-tag">商品：USB-C 充电线</div>
+        </div>
+      </div>
+      <div class="review-content" style="background:#fef2f2;">
+        用了不到一周就坏了，充电口接触不良，充不进去电。质量太差了！要求退货退款。
+      </div>
+      <div class="ai-reply" style="background:linear-gradient(135deg,#fef2f2,#fff7ed);border-left-color:#f97316;">
+        <div class="ai-reply-tag" style="background:#f97316;"><span class="bolt">⚡</span> AI 智能回复 · 差评挽回</div>
+        <div class="ai-reply-text">
+          李女士，非常抱歉给您带来不好的体验！充电问题确实不该出现。我们马上处理：① 联系客服直接为您办理免费换新 ② 额外赠送一张优惠券作为歉意 ③ 新换产品如再有问题直接退款。客服将在 5 分钟内响应，请通过旺旺联系我们。谢谢您的反馈帮我们发现不足。🙏
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn btn-publish">一键发布</button>
+        <button class="btn btn-edit">修改</button>
+        <button class="btn btn-regenerate">换一个</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="watermark">
+    想体验 AI 自动回复评论？<br>
+    <a href="https://reviewai.chat">reviewai.chat</a> · 每天免费 20 条 · Pro 版 ¥99/月
+  </div>
+</div>
+
+</body>
+</html>

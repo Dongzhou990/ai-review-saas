@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Logo } from "@/components/logo";
 import {
   MessageSquare,
   Zap,
@@ -11,9 +12,7 @@ import {
   Shield,
   Check,
   ArrowRight,
-  Sparkles,
   Loader2,
-  CreditCard,
   Copy,
   X,
 } from "lucide-react";
@@ -65,7 +64,7 @@ const pricingPlans = [
   },
   {
     name: "Pro 版",
-    price: "¥199",
+    price: "¥99",
     period: "/月",
     description: "适合成长型店铺",
     features: [
@@ -83,7 +82,7 @@ const pricingPlans = [
   },
   {
     name: "企业版",
-    price: "¥999",
+    price: "¥499",
     period: "/月",
     description: "适合多店铺商家",
     features: [
@@ -102,7 +101,8 @@ const pricingPlans = [
 ];
 
 export default function LandingPage() {
-  const [showPayment, setShowPayment] = useState<string | null>(null);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [showWechat, setShowWechat] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const router = useRouter();
 
@@ -111,8 +111,8 @@ export default function LandingPage() {
       router.push("/register");
       return;
     }
-    // Pro / Enterprise: 微信支付弹窗
-    setShowPayment(plan);
+    // Pro + 企业版：弹窗显示微信收款码
+    setShowWechat(plan);
   };
   return (
     <div className="flex flex-col min-h-screen">
@@ -121,10 +121,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-blue-600" />
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                ReviewAI
-              </span>
+              <Logo size={32} />
             </div>
             <nav className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-400">
               <a href="#features" className="hover:text-gray-900 dark:hover:text-white transition-colors">
@@ -282,12 +279,15 @@ export default function LandingPage() {
                 </CardContent>
                 <div className="p-6 pt-0">
                   <Button
-                    variant={plan.plan !== "free" ? "primary" : "outline"}
+                    variant={plan.plan === "pro" ? "primary" : "outline"}
                     className="w-full"
                     size="lg"
                     onClick={() => handlePricingCTA(plan.plan)}
+                    disabled={loadingPlan === plan.plan}
                   >
-                    {plan.cta}
+                    {loadingPlan === plan.plan ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> 跳转 Stripe 支付...</>
+                    ) : plan.cta}
                   </Button>
                 </div>
               </Card>
@@ -316,53 +316,48 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Payment Modal */}
-      {showPayment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowPayment(null)}>
+      {/* WeChat Payment Modal */}
+      {showWechat && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowWechat(null)}>
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold">
-                {showPayment === "pro" ? "升级 Pro 版 · ¥199/月" : "升级企业版 · ¥999/月"}
+                {showWechat === "pro" ? "升级 Pro 版 · ¥99/月" : "升级企业版 · ¥499/月"}
               </h2>
-              <button onClick={() => setShowPayment(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+              <button onClick={() => setShowWechat(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* QR Code Placeholder */}
-            <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-8 mb-4 text-center">
-              <div className="w-48 h-48 mx-auto bg-white rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600">
-                <div className="text-center text-gray-400">
-                  <CreditCard className="w-12 h-12 mx-auto mb-2" />
-                  <p className="text-sm font-medium">微信 / 支付宝收款码</p>
-                  <p className="text-xs mt-1">替换为你的收款码图片</p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-500 mt-4">
-                {showPayment === "pro" ? "扫码支付 ¥199/月" : "扫码支付 ¥999/月"}
+            <div className="bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-xl p-6 mb-4 text-center border border-green-200 dark:border-green-800">
+              <img src="/qrcode.jpg" alt="微信收款码" className="w-48 h-48 mx-auto rounded-lg shadow-md object-cover" />
+              <p className="text-sm text-gray-500 mt-3">
+                微信扫一扫 · {showWechat === "pro" ? "¥99/月" : "¥499/月"}
               </p>
+              <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full text-sm font-mono shadow-sm">
+                <span>Dongzhou526</span>
+                <button
+                  onClick={() => { navigator.clipboard.writeText("Dongzhou526"); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                  className="text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  {copied ? "✓ 已复制" : "复制"}
+                </button>
+              </div>
             </div>
 
-            {/* Steps */}
             <div className="space-y-2 mb-4 text-sm text-gray-600 dark:text-gray-400">
               <p className="font-medium text-gray-900 dark:text-gray-100">📱 开通步骤：</p>
-              <p>1. 截图或长按识别二维码付款</p>
-              <p>2. 添加微信：<button
-                onClick={() => { navigator.clipboard.writeText("your_wechat_id"); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                className="text-blue-600 hover:underline font-medium"
-              >
-                {copied ? "已复制！" : "点击复制微信号"}
-              </button></p>
-              <p>3. 发送付款截图 + 注册邮箱</p>
-              <p>4. 我们 5 分钟内为你开通 Pro 权限</p>
+              <p>1. 微信扫码付款</p>
+              <p>2. 添加 Dongzhou526 发付款截图 + 注册邮箱</p>
+              <p>3. 5 分钟内为你开通权限</p>
             </div>
 
             <div className="flex gap-2">
               <Link href="/register" className="flex-1">
                 <Button variant="outline" className="w-full">先免费试用</Button>
               </Link>
-              <Button variant="primary" className="flex-1" onClick={() => setShowPayment(null)}>
-                已付款，联系客服
+              <Button variant="primary" className="flex-1" onClick={() => setShowWechat(null)}>
+                知道了
               </Button>
             </div>
           </div>
@@ -372,7 +367,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-gray-100 dark:border-gray-800 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
-          <p>© 2026 ReviewAI. All rights reserved.</p>
+          <p>© 2026 Kuki AI. All rights reserved.</p>
           <div className="flex items-center justify-center gap-4 mt-2">
             <Link href="/privacy" className="hover:text-gray-700 dark:hover:text-gray-300">
               隐私政策

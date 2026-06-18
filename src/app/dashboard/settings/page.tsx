@@ -96,14 +96,43 @@ export default function SettingsPage() {
     } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { error } = await supabase.from("stores").insert({
+    const { data: store, error } = await supabase.from("stores").insert({
       user_id: user.id,
       name: newStoreName.trim(),
       platform: newStorePlatform,
       status: "active",
-    });
+    }).select().single();
 
-    if (!error) {
+    if (error) {
+      console.error("添加店铺失败:", error.message);
+      alert("添加失败: " + error.message);
+    } else {
+      // 自动生成 5 条示例评论
+      const demos = [
+        { buyer_name: "张先生", rating: 5, content: "质量非常好，物流也很快，已经是第二次购买了！音质比预期的好很多，续航也很给力。", product_name: "智能蓝牙耳机" },
+        { buyer_name: "李女士", rating: 1, content: "用了不到一周就坏了，充电口接触不良，充不进去电。质量太差了，要求退货退款。", product_name: "USB-C 充电线" },
+        { buyer_name: "王同学", rating: 3, content: "鼠标手感还可以，就是包装有点简陋，盒子被压扁了一块。还好鼠标没坏，凑合用吧。", product_name: "无线鼠标" },
+        { buyer_name: "赵美女", rating: 5, content: "性价比超高！推荐给朋友了，朋友也买了一个。支架很稳，角度调节也很方便。", product_name: "手机支架" },
+        { buyer_name: "刘老板", rating: 2, content: "颜色和图片差太多了，实物偏暗。面料也偏薄，穿一季估计就不行了。", product_name: "夏季T恤" },
+      ];
+
+      for (const d of demos) {
+        await supabase.from("reviews").insert({
+          store_id: store.id,
+          user_id: user.id,
+          buyer_name: d.buyer_name,
+          rating: d.rating,
+          content: d.content,
+          product_name: d.product_name,
+          platform: newStorePlatform,
+          status: "pending",
+          reviewed_at: new Date(Date.now() - Math.random() * 86400000 * 3).toISOString(),
+        });
+      }
+
+      // 更新店铺评论数
+      await supabase.from("stores").update({ review_count: 5 }).eq("id", store.id);
+
       setNewStoreName("");
       setNewStorePlatform("抖音小店");
       loadData();

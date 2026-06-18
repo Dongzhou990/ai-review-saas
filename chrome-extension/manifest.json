@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "Kuki AI - 电商评论智能回复",
+  "version": "1.0.0",
+  "description": "AI 自动生成电商评论回复，支持淘宝、抖音、拼多多。好评感谢、差评挽回，一键生成。",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Kuki AI"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.taobao.com/*",
+        "*://*.tmall.com/*",
+        "*://*.jd.com/*",
+        "*://*.pinduoduo.com/*",
+        "*://*.douyin.com/*",
+        "*://*.yangkeduo.com/*",
+        "*://seller.taobao.com/*",
+        "*://myseller.taobao.com/*",
+        "*://fxg.jinritemai.com/*",
+        "*://seller.jd.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://reviewai.chat/*",
+    "https://ai-review-saas-one.vercel.app/*",
+    "https://rrymgmjwluifybwrgbce.supabase.co/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

@@ -121,6 +121,8 @@ export default function ReviewsPage() {
       if (!res.ok) {
         if (res.status === 402 && data.upgrade) {
           setError("免费版今日次数已用完，请升级到 Pro 版获取无限次数");
+        } else if (res.status === 401) {
+          setError("请先登录后再使用 AI 回复");
         } else {
           setError(data.error || "AI 生成失败");
         }

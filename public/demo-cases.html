@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReviewAI - AI 回复案例展示</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f5f5; padding: 40px 20px; }
+.container { max-width: 720px; margin: 0 auto; }
+.header { text-align: center; margin-bottom: 40px; }
+.header h1 { font-size: 28px; background: linear-gradient(135deg, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.header p { color: #666; margin-top: 8px; }
+.card { background: #fff; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.platform { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; margin-bottom: 12px; }
+.platform.douyin { background: #111; color: #fff; }
+.platform.taobao { background: #ff5000; color: #fff; }
+.buyer { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; font-size: 14px; }
+.avatar.male { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+.avatar.female { background: linear-gradient(135deg, #ec4899, #f97316); }
+.name { font-weight: 600; }
+.stars { color: #f59e0b; }
+.review-text { color: #333; line-height: 1.7; margin: 12px 0; padding: 12px; background: #f9fafb; border-radius: 10px; font-size: 14px; }
+.reply-box { margin-top: 12px; padding: 16px; border-radius: 12px; border-left: 3px solid #2563eb; background: linear-gradient(135deg, #eff6ff, #faf5ff); }
+.reply-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #2563eb; font-weight: 600; margin-bottom: 8px; }
+.reply-label svg { width: 16px; height: 16px; }
+.reply-text { color: #374151; line-height: 1.7; font-size: 14px; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+.badge.good { background: #dcfce7; color: #16a34a; }
+.badge.bad { background: #fef2f2; color: #dc2626; }
+.badge.mid { background: #fef9c3; color: #ca8a04; }
+.time-saved { background: #ecfdf5; color: #059669; padding: 4px 10px; border-radius: 12px; font-size: 12px; margin-left: 8px; }
+.footer { text-align: center; margin-top: 40px; }
+.footer a { color: #2563eb; text-decoration: none; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+<h1>ReviewAI - AI 回复案例</h1>
+<p>以下为 AI 在真实场景下的自动回复示例</p>
+</div>
+
+<!-- Case 1: 5-star positive -->
+<div class="card">
+<span class="platform douyin">抖音小店</span>
+<div class="buyer">
+<div class="avatar male">张</div>
+<div>
+<div class="name">张先生</div>
+<div class="stars">★★★★★</div>
+</div>
+<span class="badge good">好评</span>
+</div>
+<div class="review-text">
+质量非常好，物流也很快，已经是第二次购买了！音质比预期的好很多，续航也很给力，戴着跑步也不会掉。
+</div>
+<div class="reply-box">
+<div class="reply-label">
+<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+AI 生成回复 <span class="time-saved">⚡ 1 秒生成</span>
+</div>
+<div class="reply-text">
+张先生您好！看到您的五星好评非常感动✨ 更高兴的是您已经是回头客了，这说明我们的产品确实能经得起考验！音质和续航是这款耳机重点优化的方向，能获得您的认可是我们最大的动力。有任何使用问题随时联系我们，祝您运动愉快，期待第三次见面！🎧
+</div>
+</div>
+</div>
+
+<!-- Case 2: 1-star negative -->
+<div class="card">
+<span class="platform taobao">淘宝</span>
+<div class="buyer">
+<div class="avatar female">李</div>
+<div>
+<div class="name">李女士</div>
+<div class="stars">★☆☆☆☆</div>
+</div>
+<span class="badge bad">差评</span>
+</div>
+<div class="review-text">
+用了不到一周就坏了，充电口接触不良，充不进去电。质量太差了！要求退货退款，不然就给投诉。
+</div>
+<div class="reply-box">
+<div class="reply-label">
+<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+AI 生成回复（挽回型） <span class="time-saved">⚡ 1 秒生成</span>
+</div>
+<div class="reply-text">
+李女士，非常抱歉给您带来这么不好的体验！看到您的反馈我们很重视，充电问题确实不应该发生。我们马上为您处理：① 联系在线客服直接为您办理免费换新，无需退货 ② 额外赠送一张优惠券作为歉意 ③ 承诺新换产品如再有问题直接退款。请通过旺旺联系我们，客服将在 5 分钟内响应。我们在产品质量把控上会更加严格，谢谢您的反馈帮我们发现不足。🙏
+</div>
+</div>
+</div>
+
+<!-- Case 3: 3-star neutral -->
+<div class="card">
+<span class="platform douyin">抖音小店</span>
+<div class="buyer">
+<div class="avatar female">王</div>
+<div>
+<div class="name">王女士</div>
+<div class="stars">★★★☆☆</div>
+</div>
+<span class="badge mid">中评</span>
+</div>
+<div class="review-text">
+衣服款式还可以，但颜色比图片暗一点，料子偏薄。总体来说对得起这个价格吧，中规中矩。
+</div>
+<div class="reply-box">
+<div class="reply-label">
+<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+AI 生成回复 <span class="time-saved">⚡ 1 秒生成</span>
+</div>
+<div class="reply-text">
+感谢王女士的客观评价！关于颜色问题，我们正在优化拍摄灯光以减少色差，新批次会标注实物颜色说明。面料方面，这款主打春夏薄款设计，您反馈的偏薄问题我们会在下个版本加厚内衬。您的每一条建议都帮我们做出更好的产品，再次感谢！如有需要可以联系客服，我们为您准备了一份小礼物~ 🌸
+</div>
+</div>
+</div>
+
+<div class="footer">
+<p style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">想体验 AI 自动回复？</p>
+<a href="https://reviewai.chat">👉 reviewai.chat 免费试用</a>
+<p style="color: #999; font-size: 13px; margin-top: 8px;">每天 20 条免费，Pro 版 ¥99/月 · 无限次数</p>
+</div>
+
+</div>
+</body>
+</html>
