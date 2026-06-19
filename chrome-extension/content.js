@@ -20,6 +20,10 @@
       return "douyin";
     if (host.includes("pinduoduo.com") || host.includes("yangkeduo.com"))
       return "pinduoduo";
+    if (host.includes("ctrip.com")) return "ctrip";
+    if (host.includes("qunar.com")) return "qunar";
+    if (host.includes("meituan.com")) return "meituan";
+    if (host.includes("fliggy.com")) return "fliggy";
     return "unknown";
   }
 
@@ -29,49 +33,55 @@
   // Review Extraction Strategies by Platform
   // ============================================
   function findReviewContainers() {
-    // Generic approach: find review-like elements
-    // These selectors work for most Chinese e-commerce backends
-    const selectors = [
-      // Generic review containers
-      '[class*="review"]',
-      '[class*="comment"]',
-      '[class*="evaluate"]',
-      '[class*="feedback"]',
-      '[class*="rate-item"]',
-      '[class*="comment-item"]',
-      '[class*="review-item"]',
-      '[class*="评价"]',
-      // Taobao-specific
-      ".rate-item",
-      ".tb-rate-item",
-      ".mod-rate-item",
-      // JD-specific
-      ".comment-item",
-      ".mc-comment-item",
-      // Douyin-specific (Feishou / JinriTemai)
-      ".evaluate-item",
-      ".comment-detail",
-    ];
+    var hotelSelectors = {
+      ctrip: ["[class*=\"comment_detail\"]", "[class*=\"commentItem\"]", "[class*=\"hotel_comment\"]", "[class*=\"comment_mod\"]"],
+      qunar: ["[class*=\"e_comment\"]", "[class*=\"comment_list\"] [class*=\"item\"]", "[class*=\"review-item\"]"],
+      meituan: ["[class*=\"review-item\"]", "[class*=\"poi-review-item\"]", "[class*=\"comment-item\"]"],
+      fliggy: ["[class*=\"rate-item\"]", "[class*=\"comment-item-wrap\"]", "[class*=\"review-con\"]"],
+    };
 
-    for (const selector of selectors) {
-      const elements = document.querySelectorAll(selector);
+    var selectors = [];
+
+    // Platform-specific selectors first (higher priority)
+    if (hotelSelectors[platform]) {
+      selectors = selectors.concat(hotelSelectors[platform]);
+    }
+
+    // Generic selectors for all platforms
+    selectors = selectors.concat([
+      "[class*=\"review\"]",
+      "[class*=\"comment\"]",
+      "[class*=\"evaluate\"]",
+      "[class*=\"feedback\"]",
+      "[class*=\"rate-item\"]",
+      "[class*=\"comment-item\"]",
+      "[class*=\"review-item\"]",
+      "[class*=\"\u8bc4\u4ef7\"]",
+      // Platform-specific fallbacks
+      ".rate-item", ".tb-rate-item", ".mod-rate-item",
+      ".comment-item", ".mc-comment-item",
+      ".evaluate-item", ".comment-detail",
+    ]);
+
+    for (var i = 0; i < selectors.length; i++) {
+      var sel = selectors[i];
+      var elements = document.querySelectorAll(sel);
       if (elements.length > 0) {
-        return Array.from(elements).filter((el) => {
-          // Filter: element should contain text (likely a review)
-          const text = el.textContent?.trim() || "";
-          return text.length > 15; // Reviews have meaningful content
+        return Array.from(elements).filter(function(el) {
+          var text = (el.textContent || "").trim();
+          return text.length > 15;
         });
       }
     }
 
     // Fallback: scan all visible text blocks for review patterns
-    const allTextBlocks = document.querySelectorAll(
-      "div, section, article, li, p"
-    );
-    return Array.from(allTextBlocks).filter((el) => {
-      const text = el.textContent?.trim() || "";
-      // Look for review patterns like star ratings
-      const hasStars =
+    var allTextBlocks = document.querySelectorAll("div, section, article, li, p");
+    return Array.from(allTextBlocks).filter(function(el) {
+      var text = (el.textContent || "").trim();
+      var hasStars = text.indexOf("\u2605") !== -1 || text.indexOf("\u2b50") !== -1 || text.indexOf("\u8bc4\u5206") !== -1;
+      return hasStars && text.length > 30;
+    });
+  }
         text.includes("★") || text.includes("⭐") || text.includes("评分");
       return hasStars && text.length > 30;
     });
@@ -94,6 +104,21 @@
     // Try to find product name
     const productEl = container.querySelector('[class*="product"], [class*="item"], [class*="goods"], [class*="商品"]');
     const productName = productEl?.textContent?.trim()?.slice(0, 30) || "";
+
+    // Hotel-specific: extract room type and check-in details
+    var hotelPlatforms = ["ctrip", "qunar", "meituan", "fliggy"];
+    if (hotelPlatforms.indexOf(platform) !== -1) {
+      var roomEl = container.querySelector("[class*=\"room\"], [class*=\"\u623f\u578b\"]");
+      var checkinEl = container.querySelector("[class*=\"checkin\"], [class*=\"\u5165\u4f4f\"], [class*=\"date\"]");
+      if (roomEl) {
+        var roomText = (roomEl.textContent || "").trim().slice(0, 30);
+        productName = roomText || productName;
+      }
+      if (checkinEl) {
+        var dateText = (checkinEl.textContent || "").trim().slice(0, 20);
+        if (dateText) productName = productName + " " + dateText;
+      }
+    }
 
     return {
       container,
@@ -133,30 +158,39 @@
     if (isProcessing) return;
     isProcessing = true;
 
-    // Show loading
     const originalHTML = btn.innerHTML;
     btn.innerHTML = `<span class="kuki-spinner"></span> 生成中...`;
     btn.disabled = true;
 
     try {
-      const response = await chrome.runtime.sendMessage({
-        action: "generateReply",
-        data: {
+      const response = await fetch("https://reviewai.chat/api/ai/generate-reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
           reviewContent: reviewData.text,
           rating: reviewData.rating,
           reviewerName: reviewData.buyerName,
           productName: reviewData.productName,
-        },
+        }),
       });
 
-      if (response.error) {
-        showError(container, response.error);
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          showLoginPrompt(container, "请先登录 Kuki AI");
+        } else if (response.status === 402) {
+          showLoginPrompt(container, "免费版次数已用完，请升级 Pro");
+        } else {
+          showError(container, data.error || "AI 生成失败，请重试");
+        }
         return;
       }
 
-      showReplyPanel(container, response.reply, reviewData);
+      showReplyPanel(container, data.reply, reviewData);
     } catch (err) {
-      showError(container, "请先登录 Kuki AI 账号");
+      showLoginPrompt(container, "网络异常或未登录");
     } finally {
       btn.innerHTML = originalHTML;
       btn.disabled = false;
@@ -223,6 +257,20 @@
   // ============================================
   // UI: Error Toast
   // ============================================
+
+  function showLoginPrompt(container, msg) {
+    const toast = document.createElement("div");
+    toast.className = "kuki-toast";
+    toast.style.whiteSpace = "nowrap";
+    toast.style.fontSize = "13px";
+    toast.textContent = msg;
+    toast.style.cursor = "pointer";
+    toast.addEventListener("click", function() {
+      window.open("https://reviewai.chat/login", "_blank");
+    });
+    container.appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 6000);
+  }
   function showError(container, msg) {
     const toast = document.createElement("div");
     toast.className = "kuki-toast";

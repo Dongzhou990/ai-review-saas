@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>携程酒店 - AI回复演示</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #e8e8e8;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+.phone {
+  width: 390px;
+  min-height: 700px;
+  background: #f5f5f5;
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.header {
+  background: linear-gradient(135deg, #0990D8, #0C85C7);
+  color: #fff;
+  padding: 12px 16px;
+  font-size: 17px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hotel-card {
+  margin: 12px;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.hotel-img {
+  height: 160px;
+  background: linear-gradient(135deg, #e0f2fe, #bae6fd, #7dd3fc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+}
+.hotel-name {
+  padding: 12px 16px 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+.hotel-location {
+  padding: 0 16px;
+  font-size: 12px;
+  color: #999;
+}
+.review-section {
+  padding: 12px 16px 16px;
+}
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #f0f0f0;
+}
+.review-item {
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 12px; font-weight: 600;
+}
+.stars { color: #f59e0b; font-size: 12px; }
+.name { font-weight: 600; font-size: 13px; }
+.tag { font-size: 10px; padding: 1px 6px; border-radius: 8px; margin-left: auto; }
+.tag.good { background: #dcfce7; color: #16a34a; }
+.tag.bad { background: #fef2f2; color: #dc2626; }
+.tag.mid { background: #fef9c3; color: #ca8a04; }
+.review-text { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 8px; }
+.ai-reply-box {
+  background: linear-gradient(135deg, #eff6ff, #f5f3ff);
+  border-left: 3px solid #6366f1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: 12px;
+}
+.ai-label { color: #6366f1; font-weight: 600; font-size: 11px; margin-bottom: 4px; }
+.ai-text { color: #374151; line-height: 1.6; }
+.watermark {
+  text-align: center; padding: 16px; color: #999; font-size: 13px;
+  border-top: 1px solid #eee; margin-top: 8px;
+}
+.watermark a { color: #6366f1; text-decoration: none; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="header">🏨 携程商家后台 - 评价管理</div>
+
+  <div class="hotel-card">
+    <div class="hotel-img">🏨</div>
+    <div class="hotel-name">杭州西湖湖景度假酒店</div>
+    <div class="hotel-location">📍 杭州市 · 西湖区 · 4.8分 · 326条评价</div>
+
+    <div class="review-section">
+      <div class="section-title">最新评价</div>
+
+      <!-- Review 1: 5-star -->
+      <div class="review-item">
+        <div class="review-header">
+          <div class="avatar" style="background:linear-gradient(135deg,#3b82f6,#6366f1)">张</div>
+          <span class="name">张先生</span>
+          <span class="stars">★★★★★</span>
+          <span class="tag good">好评</span>
+        </div>
+        <div class="review-text">
+          酒店位置太好了，步行到西湖只要5分钟！前台服务热情，帮我升级了湖景房，view超赞。早餐也很丰盛。
+        </div>
+        <div class="ai-reply-box">
+          <div class="ai-label">✨ AI 智能回复</div>
+          <div class="ai-text">
+            张先生您好！看到您对位置和服务的肯定我们特别开心！湖景房确实是我们最受欢迎的房型，很高兴您能享受西湖的美景。我们已经记录您对早餐的好评，厨师团队会继续保持水准。期待您再次入住，下次可以试试我们的下午茶套餐哦~ 🍵
+          </div>
+        </div>
+      </div>
+
+      <!-- Review 2: 1-star -->
+      <div class="review-item">
+        <div class="review-header">
+          <div class="avatar" style="background:linear-gradient(135deg,#ec4899,#f97316)">王</div>
+          <span class="name">王先生</span>
+          <span class="stars">★☆☆☆☆</span>
+          <span class="tag bad">差评</span>
+        </div>
+        <div class="review-text">
+          订的豪华海景房，到了酒店说没房了，给我换了个连窗户都没有的小房间。还说是平台的问题。太生气了！
+        </div>
+        <div class="ai-reply-box" style="background:linear-gradient(135deg,#fef2f2,#fff7ed);border-left-color:#f97316;">
+          <div class="ai-label">✨ AI 智能回复 · 差评挽回</div>
+          <div class="ai-text">
+            王先生，非常抱歉给您带来这么糟糕的入住体验！关于房间不符的问题，我们立刻展开调查：① 联系前台确认您的订单详情 ② 如确实是酒店失误，将为您免费升级至预订房型或全额退款 ③ 额外赠送一晚免费入住作为歉意。请拨打前台电话 0571-XXXX 或通过携程在线客服联系我们，我们将在10分钟内为您解决。再次向您诚挚道歉，这样的服务失误绝不应发生！🙏
+          </div>
+        </div>
+      </div>
+
+      <!-- Review 3: 5-star -->
+      <div class="review-item">
+        <div class="review-header">
+          <div class="avatar" style="background:linear-gradient(135deg,#10b981,#059669)">陈</div>
+          <span class="name">陈女士</span>
+          <span class="stars">★★★★★</span>
+          <span class="tag good">好评</span>
+        </div>
+        <div class="review-text">
+          蜜月旅行选的这家，没有让我失望！房间布置了玫瑰花和香槟，阳台直接看日落，太浪漫了。下次纪念日还来！
+        </div>
+        <div class="ai-reply-box">
+          <div class="ai-label">✨ AI 智能回复</div>
+          <div class="ai-text">
+            陈女士，看到您的评价我们全体工作人员都特别开心！蜜月是人生最美好的时刻，我们很荣幸能成为您甜蜜回忆的一部分。玫瑰花和香槟是我们的心意，希望能为您的旅程增添浪漫。期待您的下次光临，纪念日记得提前告诉我们，我们会准备更特别的惊喜~ 🌹
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="watermark">
+    想让酒店评价管理更轻松？<br>
+    <a href="https://reviewai.chat">reviewai.chat</a> · 每天免费 20 条 · Pro 版 ¥99/月
+  </div>
+</div>
+</body>
+</html>

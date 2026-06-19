@@ -18,8 +18,8 @@ import {
   Plus,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-
-const PLATFORMS = ["抖音小店", "淘宝", "拼多多", "TikTok Shop", "京东", "Shopee"];
+import { getPlatformNames } from "@/lib/platforms";
+const PLATFORMS = getPlatformNames();
 
 interface Review {
   id: string;
@@ -47,6 +47,8 @@ export default function ReviewsPage() {
   const [editText, setEditText] = useState("");
   const [filter, setFilter] = useState<"all" | "pending" | "replied">("all");
   const [error, setError] = useState("");
+  const [stores, setStores] = useState<any[]>([]);
+  const [selectedStore, setSelectedStore] = useState<string>("all");
 
   // Add review modal
   const [showAdd, setShowAdd] = useState(false);
@@ -66,6 +68,13 @@ export default function ReviewsPage() {
     } = await supabase.auth.getUser();
     if (!user) return;
 
+    // Load stores for filter
+    const { data: storeList } = await supabase
+      .from("stores")
+      .select("*")
+      .eq("user_id", user.id);
+    if (storeList) setStores(storeList);
+
     let query = supabase
       .from("reviews")
       .select("*")
@@ -74,6 +83,7 @@ export default function ReviewsPage() {
 
     if (filter === "pending") query = query.eq("status", "pending");
     if (filter === "replied") query = query.eq("status", "replied");
+    if (selectedStore !== "all") query = query.eq("store_id", selectedStore);
 
     const { data } = await query;
 
@@ -94,7 +104,7 @@ export default function ReviewsPage() {
       setReviews(reviewsWithReplies);
     }
     setLoading(false);
-  }, [supabase, filter]);
+  }, [supabase, filter, selectedStore]);
 
   useEffect(() => {
     loadReviews();
@@ -211,26 +221,41 @@ export default function ReviewsPage() {
   const handleAddReview = async () => {
     if (!newReview.buyer_name.trim() || !newReview.content.trim()) return;
     setSubmitting(true);
+    setError("");
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      setError("请先登录");
+      setSubmitting(false);
+      return;
+    }
 
-    // 1. Save review
-    const { data: review } = await supabase
+    // 1. Save review (link to selected store if any)
+    const storeId = selectedStore !== "all" ? selectedStore : (stores[0]?.id || null);
+    const platform = newReview.platform || (storeId ? stores.find(s => s.id === storeId)?.platform : "抖音小店") || "抖音小店";
+
+    const { data: review, error: insertError } = await supabase
       .from("reviews")
       .insert({
         user_id: user.id,
+        store_id: storeId,
         buyer_name: newReview.buyer_name.trim(),
         rating: newReview.rating,
         content: newReview.content.trim(),
         product_name: newReview.product_name.trim() || "商品",
-        platform: newReview.platform,
+        platform,
         status: "pending",
         reviewed_at: new Date().toISOString(),
       })
       .select()
       .single();
+
+    if (insertError) {
+      setError("导入失败: " + insertError.message);
+      setSubmitting(false);
+      return;
+    }
 
     setShowAdd(false);
     setNewReview({ buyer_name: "", rating: 5, content: "", product_name: "", platform: "抖音小店" });
@@ -260,8 +285,12 @@ export default function ReviewsPage() {
             is_ai_generated: true,
           });
           await supabase.from("reviews").update({ status: "replied" }).eq("id", review.id);
+        } else {
+          setError(data.error || "AI 生成失败，可稍后点击'AI生成回复'重试");
         }
-      } catch { /* ignore auto-generate errors */ }
+      } catch (err: any) {
+        setError("AI 生成失败: " + (err?.message || "网络错误"));
+      }
       setGenerating(null);
       loadReviews();
     }
@@ -281,9 +310,19 @@ export default function ReviewsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-2xl font-bold">评论管理</h1>
         <div className="flex gap-2 items-center">
+          <select
+            className="h-9 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 text-sm"
+            value={selectedStore}
+            onChange={(e) => setSelectedStore(e.target.value)}
+          >
+            <option value="all">全部店铺</option>
+            {stores.map((s) => (
+              <option key={s.id} value={s.id}>{s.platform} - {s.name}</option>
+            ))}
+          </select>
           <Button variant="primary" size="sm" onClick={() => setShowAdd(true)}>
             <Plus className="w-4 h-4" /> 导入评论
           </Button>

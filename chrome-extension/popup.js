@@ -1,51 +1,8 @@
-// Kuki AI - Popup Script
+// Kuki AI - Popup Script v2.0 (Web Login)
 
-const loggedOutEl = document.getElementById("logged-out");
-const loggedInEl = document.getElementById("logged-in");
-
-// Check auth state on open
-document.addEventListener("DOMContentLoaded", async () => {
-  const stored = await chrome.storage.local.get(["session"]);
-  if (stored.session) {
-    showLoggedIn(stored.session);
-  }
-});
-
-// Login
-document.getElementById("btn-login").addEventListener("click", async () => {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-
-  if (!email || !password) {
-    alert("请输入邮箱和密码");
-    return;
-  }
-
-  const btn = document.getElementById("btn-login");
-  btn.textContent = "登录中...";
-  btn.disabled = true;
-
-  try {
-    const response = await chrome.runtime.sendMessage({
-      action: "login",
-      email,
-      password,
-    });
-    if (response.error) throw new Error(response.error);
-    showLoggedIn(response);
-  } catch (err) {
-    alert(err.message || "登录失败");
-  } finally {
-    btn.textContent = "登录";
-    btn.disabled = false;
-  }
-});
-
-// Logout
-document.getElementById("btn-logout").addEventListener("click", async () => {
-  await chrome.storage.local.remove(["session"]);
-  loggedInEl.style.display = "none";
-  loggedOutEl.style.display = "block";
+// Login via web
+document.getElementById("btn-login-web").addEventListener("click", () => {
+  chrome.tabs.create({ url: "https://reviewai.chat/login" });
 });
 
 // Open dashboard
@@ -53,15 +10,31 @@ document.getElementById("btn-open-app").addEventListener("click", () => {
   chrome.tabs.create({ url: "https://reviewai.chat/dashboard" });
 });
 
-function showLoggedIn(data) {
-  loggedOutEl.style.display = "none";
-  loggedInEl.style.display = "block";
-
-  const user = data.user || data;
-  document.getElementById("user-email").textContent = user.email || "-";
-}
-
-// Enter key to login
-document.getElementById("password").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") document.getElementById("btn-login").click();
+// Reload extension
+document.getElementById("btn-reload").addEventListener("click", async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab) {
+    chrome.tabs.reload(tab.id);
+    window.close();
+  }
 });
+
+// Check login status via web API
+(async function() {
+  try {
+    var res = await fetch("https://reviewai.chat/api/auth/me", {
+      credentials: "include",
+    });
+    if (res.ok) {
+      var data = await res.json();
+      if (data.authenticated) {
+        var btn = document.getElementById("btn-login-web");
+        btn.textContent = "\u2705 \u5df2\u767b\u5f55";
+        btn.style.opacity = "0.7";
+        document.getElementById("btn-open-app").style.display = "block";
+      }
+    }
+  } catch (e) {
+    // Not logged in, keep default state
+  }
+})();

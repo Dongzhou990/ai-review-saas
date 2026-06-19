@@ -24,7 +24,11 @@
         "*://seller.taobao.com/*",
         "*://myseller.taobao.com/*",
         "*://fxg.jinritemai.com/*",
-        "*://seller.jd.com/*"
+        "*://seller.jd.com/*",
+        "*://*.ctrip.com/*",
+        "*://*.qunar.com/*",
+        "*://*.meituan.com/*",
+        "*://*.fliggy.com/*"
       ],
       "js": ["content.js"],
       "css": ["content.css"],

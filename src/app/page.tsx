@@ -30,7 +30,7 @@ const features = [
     icon: Zap,
     title: "多平台接入",
     description:
-      "支持抖音小店、淘宝、拼多多、TikTok Shop 等主流平台，一个后台管理所有店铺评论。",
+      "支持抖音、淘宝、京东、携程、美团等主流平台，一个后台管理所有店铺评论。",
   },
   {
     icon: BarChart3,
@@ -130,8 +130,11 @@ export default function LandingPage() {
               <a href="#pricing" className="hover:text-gray-900 dark:hover:text-white transition-colors">
                 价格
               </a>
-              <a href="#" className="hover:text-gray-900 dark:hover:text-white transition-colors">
-                文档
+              <a href="/taobao-demo.html" className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                演示
+              <a href="/blog" className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                博客
+              </a>
               </a>
             </nav>
             <div className="flex items-center gap-3">
@@ -166,7 +169,7 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-              连接抖音、淘宝、拼多多等平台，AI 自动生成个性化回复。
+              连接抖音、淘宝、携程、美团等平台，AI 自动生成个性化回复。
               好评感谢、差评挽回，节省 90% 客服人力，提升店铺评分。
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -176,7 +179,7 @@ export default function LandingPage() {
                   <ArrowRight className="w-5 h-5" />
                 </Button>
               </Link>
-              <Button variant="outline" size="xl">
+              <Button variant="outline" size="xl" onClick={() => window.open("/taobao-demo.html", "_blank")}>
                 查看演示
               </Button>
             </div>
@@ -188,10 +191,10 @@ export default function LandingPage() {
           {/* Stats */}
           <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto text-center">
             {[
-              { value: "10,000+", label: "活跃商家" },
-              { value: "500万+", label: "AI 回复数" },
-              { value: "98.5%", label: "好评率提升" },
-              { value: "90%", label: "人力节省" },
+              { value: "多平台", label: "支持抖音/淘宝/京东/携程" },
+              { value: "秒级生成", label: "AI 实时生成个性化回复" },
+              { value: "人工审核", label: "AI 生成后由你确认发布" },
+              { value: "免费版", label: "免费版永久可用" },
             ].map((stat) => (
               <div key={stat.label}>
                 <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -236,6 +239,26 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
+
+      {/* Demo Showcase */}
+      <section className="py-16 bg-white dark:bg-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">\u67e5\u770b\u5b9e\u9645\u6548\u679c</h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mb-10">\u70b9\u51fb\u4e0b\u65b9\u6f14\u793a\uff0c\u770b\u770b AI \u5728\u771f\u5b9e\u5e73\u53f0\u4e2d\u7684\u5de5\u4f5c\u6548\u679c</p>
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <a href="/taobao-demo.html" className="group block p-6 rounded-2xl border border-gray-200 dark:border-gray-800 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-700 transition-all">
+              <span className="text-4xl mb-3 block">\ud83d\uded2</span>
+              <h3 className="font-semibold text-lg mb-1 group-hover:text-blue-600 transition-colors">\u6dd8\u5b9d\u5343\u725b\u5356\u5bb6\u540e\u53f0</h3>
+              <p className="text-sm text-gray-500">\u67e5\u770b AI \u5982\u4f55\u5728\u6dd8\u5b9d\u540e\u53f0\u667a\u80fd\u56de\u590d\u8bc4\u8bba</p>
+            </a>
+            <a href="/hotel-demo.html" className="group block p-6 rounded-2xl border border-gray-200 dark:border-gray-800 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-700 transition-all">
+              <span className="text-4xl mb-3 block">\ud83c\udfe8</span>
+              <h3 className="font-semibold text-lg mb-1 group-hover:text-blue-600 transition-colors">\u643a\u7a0b\u9152\u5e97\u5546\u5bb6\u540e\u53f0</h3>
+              <p className="text-sm text-gray-500">\u67e5\u770b AI \u5982\u4f55\u5904\u7406\u9152\u5e97\u4f4f\u5bbf\u8bc4\u8bba</p>
+            </a>
+          </div>
+        </div>
+      </section>
       <section id="pricing" className="py-24 bg-gray-50 dark:bg-gray-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">

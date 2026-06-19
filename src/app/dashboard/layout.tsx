@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -44,6 +44,21 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const supabaseRef = useRef<SupabaseClient>(null as any);
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(function() {
+    var checkAuth = async function() {
+      var _a;
+      var supabase = getSupabase();
+      var result = await supabase.auth.getUser();
+      if (!((_a = result.data) === null || _a === void 0 ? void 0 : _a.user)) {
+        router.push("/login");
+      } else {
+        setAuthReady(true);
+      }
+    };
+    checkAuth();
+  }, []);
 
   const getSupabase = () => {
     if (!supabaseRef.current) {
@@ -58,6 +73,14 @@ export default function DashboardLayout({
     router.refresh();
   };
 
+
+  if (!authReady) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+      </div>
+    );
+  }
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
       {/* Sidebar */}

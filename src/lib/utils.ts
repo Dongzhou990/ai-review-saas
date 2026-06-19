@@ -5,8 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDate(date: string | Date) {
-  return new Date(date).toLocaleDateString("zh-CN", {
+export function formatDate(date: string | Date, locale = "zh-CN") {
+  return new Date(date).toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -15,8 +15,8 @@ export function formatDate(date: string | Date) {
   });
 }
 
-export function formatNumber(num: number) {
-  return new Intl.NumberFormat("zh-CN").format(num);
+export function formatNumber(num: number, locale = "zh-CN") {
+  return new Intl.NumberFormat(locale).format(num);
 }
 
 export function timeAgo(date: string | Date) {

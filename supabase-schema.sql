@@ -1,4 +1,4 @@
--- ReviewAI Supabase Database Schema
+-- Kuki AI Supabase Database Schema
 -- 在 Supabase SQL Editor 中运行此文件来初始化数据库
 
 -- ============================================
@@ -8,7 +8,7 @@ CREATE TABLE stores (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  platform TEXT NOT NULL CHECK (platform IN ('抖音小店', '淘宝', '拼多多', 'TikTok Shop', '京东', 'Shopee')),
+  platform TEXT NOT NULL CHECK (platform IN ('抖音小店', '淘宝', '拼多多', '京东', '携程', '去哪儿', '美团', '飞猪', 'TikTok Shop', 'Shopee')),
   platform_store_id TEXT,
   access_token TEXT,
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'disconnected', 'expired')),
@@ -28,7 +28,7 @@ CREATE POLICY "Users can manage own stores" ON stores
 -- ============================================
 CREATE TABLE reviews (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  store_id UUID NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
+  store_id UUID REFERENCES stores(id) ON DELETE SET NULL,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   platform_review_id TEXT,
   buyer_name TEXT NOT NULL,
@@ -163,3 +163,68 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ============================================
+-- 6. 会议纪要表
+-- ============================================
+CREATE TABLE meetings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  raw_content TEXT NOT NULL,
+  content_type TEXT DEFAULT 'text' CHECK (content_type IN ('text', 'audio')),
+  audio_url TEXT,
+  summary TEXT DEFAULT '',
+  decisions JSONB DEFAULT '[]'::jsonb,
+  key_points JSONB DEFAULT '[]'::jsonb,
+  status TEXT DEFAULT 'processing' CHECK (status IN ('processing', 'completed', 'failed', 'deleted')),
+  duration_minutes INTEGER,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE meetings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage own meetings" ON meetings
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE INDEX idx_meetings_user_id ON meetings(user_id);
+CREATE INDEX idx_meetings_status ON meetings(status);
+
+-- ============================================
+-- 7. 会议待办事项表
+-- ============================================
+CREATE TABLE meeting_action_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  assignee TEXT DEFAULT '',
+  priority TEXT DEFAULT 'medium' CHECK (priority IN ('high', 'medium', 'low')),
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled')),
+  due_date TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE meeting_action_items ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage own action items" ON meeting_action_items
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE INDEX idx_action_items_meeting_id ON meeting_action_items(meeting_id);
+CREATE INDEX idx_action_items_user_id ON meeting_action_items(user_id);
+
+CREATE TRIGGER tg_meetings_updated_at
+  BEFORE UPDATE ON meetings
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER tg_meeting_action_items_updated_at
+  BEFORE UPDATE ON meeting_action_items
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ============================================
+-- Migration: Remove hardcoded platform CHECK for global scalability
+-- Run these after adding the application-level validation:
+--
+-- ALTER TABLE stores DROP CONSTRAINT IF EXISTS stores_platform_check;
+-- ALTER TABLE reviews DROP CONSTRAINT IF EXISTS reviews_platform_check;
+-- ============================================

@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"vercel inspect https://ai-review-saas-d0kbaf4wx-dongzhou990s-projects.vercel.app --cwd /Users/xiaobinggan/ai-review-saas 2>&1\",\"timeout\":15000,\"description\":\"Inspect failing deployment\"}",
-  "error": "Exit code 1\n<claude-code-hint v=\"1\" type=\"plugin\" value=\"vercel@claude-plugins-official\" />\nVercel CLI 54.14.0 (Node.js 24.15.0)\nFetching deployment \"ai-review-saas-d0kbaf4wx-dongzhou990s-projects.vercel.app\" in dongzhou990s-projects\n> Fetched deployment \"ai-review-saas-d0kbaf4wx-dongzhou990s-projects.vercel.app\" in dongzhou990s-projects [704ms]\n\n  General\n\n    id\t\tdpl_6yuryegoW9EtuSFWeFgVvw9yZW1R\n    name\tai-review-saas\n    target\tproduction\n    status\t● Error\n    url\t\thttps://ai-review-saas-d0...",
-  "timestamp": "2026-06-15T16:03:51.629Z",
-  "retry_count": 2
-}
