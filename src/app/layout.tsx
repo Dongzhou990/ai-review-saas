@@ -3,31 +3,32 @@ import "./globals.css";
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "Kuki AI - AI \u7535\u5546\u8bc4\u8bba\u7ba1\u7406\uff0c\u81ea\u52a8\u56de\u590d + \u667a\u80fd\u5ba2\u670d",
+  title: "口碑助手 - AI门店口碑运营助手：管好评、回差评、懂问题",
   description:
-    "\u7528 AI \u81ea\u52a8\u7ba1\u7406\u7535\u5546\u8bc4\u8bba\u548c\u5ba2\u670d\u56de\u590d\u3002\u8fde\u63a5\u6296\u97f3\u3001\u6dd8\u5b9d\u3001\u62fc\u591a\u591a\u7b49\u5e73\u53f0\uff0c\u8282\u7701 90% \u4eba\u529b\uff0c\u63d0\u5347\u5e97\u94fa\u8bc4\u5206\u3002",
+    "打开看一眼，就知道门店口碑好不好、问题出在哪。餐饮、酒店、美容门店老板都在用的口碑运营助手。",
   keywords: [
-    "Kuki AI",
-    "AI\u8bc4\u8bba\u56de\u590d",
-    "\u7535\u5546\u5ba2\u670d",
-    "AI\u5ba2\u670d",
-    "\u81ea\u52a8\u56de\u590d",
-    "\u8bc4\u8bba\u7ba1\u7406",
-    "\u6296\u97f3\u5c0f\u5e97",
-    "\u6dd8\u5b9d\u5ba2\u670d",
+    "口碑助手",
+    "AI差评回复",
+    "门店口碑管理",
+    "差评自动回复",
+    "好评邀约",
+    "酒店差评回复",
+    "餐饮差评回复",
+    "门店运营工具",
+    "美容院差评回复",
   ],
   openGraph: {
-    title: "Kuki AI - AI \u7535\u5546\u8bc4\u8bba\u7ba1\u7406",
-    description: "\u7528 AI \u81ea\u52a8\u7ba1\u7406\u7535\u5546\u8bc4\u8bba\u548c\u5ba2\u670d\u56de\u590d\u3002",
+    title: "打开看一眼，就知道门店口碑好不好 | 口碑助手",
+    description: "AI分析差评、自动生成回复、每周口碑汇报。餐饮、酒店、美容门店老板都在用。",
     url: "https://reviewai.chat",
-    siteName: "Kuki AI",
+    siteName: "口碑助手",
     locale: "zh_CN",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kuki AI - AI \u7535\u5546\u8bc4\u8bba\u7ba1\u7406",
-    description: "\u7528 AI \u81ea\u52a8\u7ba1\u7406\u7535\u5546\u8bc4\u8bba\u548c\u5ba2\u670d\u56de\u590d\u3002",
+    title: "口碑助手 - AI门店口碑运营助手",
+    description: "AI帮你回差评、分析问题、生成邀评文案、每周口碑汇报。",
   },
   robots: {
     index: true,

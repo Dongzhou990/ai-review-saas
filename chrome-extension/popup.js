@@ -1,40 +1,44 @@
-// Kuki AI - Popup Script v2.0 (Web Login)
+// 口碑助手 - Popup Script v2.0
+(function () {
+  "use strict";
 
-// Login via web
-document.getElementById("btn-login-web").addEventListener("click", () => {
-  chrome.tabs.create({ url: "https://reviewai.chat/login" });
-});
+  const WEB_APP = "http://localhost:3459";
 
-// Open dashboard
-document.getElementById("btn-open-app").addEventListener("click", () => {
-  chrome.tabs.create({ url: "https://reviewai.chat/dashboard" });
-});
+  // 检测当前标签页平台
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    const tab = tabs[0];
+    if (!tab || !tab.url) return;
 
-// Reload extension
-document.getElementById("btn-reload").addEventListener("click", async () => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tab) {
-    chrome.tabs.reload(tab.id);
-    window.close();
-  }
-});
+    const host = new URL(tab.url).hostname;
+    const statusEl = document.getElementById("statusText");
+    const dotEl = document.querySelector(".status-dot");
 
-// Check login status via web API
-(async function() {
-  try {
-    var res = await fetch("https://reviewai.chat/api/auth/me", {
-      credentials: "include",
-    });
-    if (res.ok) {
-      var data = await res.json();
-      if (data.authenticated) {
-        var btn = document.getElementById("btn-login-web");
-        btn.textContent = "\u2705 \u5df2\u767b\u5f55";
-        btn.style.opacity = "0.7";
-        document.getElementById("btn-open-app").style.display = "block";
-      }
+    const supported = [
+      { host: "meituan.com", name: "美团" },
+      { host: "dianping.com", name: "大众点评" },
+      { host: "ctrip.com", name: "携程" },
+      { host: "qunar.com", name: "去哪儿" },
+      { host: "fliggy.com", name: "飞猪" },
+      { host: "xiaohongshu.com", name: "小红书" },
+      { host: "taobao.com", name: "淘宝" },
+      { host: "jinritemai.com", name: "抖音小店" },
+    ];
+
+    const match = supported.find(s => host.includes(s.host));
+    if (match) {
+      statusEl.textContent = "已在 " + match.name + " 平台，可以使用";
+      dotEl.classList.add("active");
+    } else {
+      statusEl.textContent = "当前页面不支持，请打开美团/点评/携程后台";
+      dotEl.classList.remove("active");
     }
-  } catch (e) {
-    // Not logged in, keep default state
-  }
+  });
+
+  document.getElementById("btnOpenApp").onclick = function () {
+    chrome.tabs.create({ url: WEB_APP });
+  };
+
+  document.getElementById("btnHowTo").onclick = function () {
+    chrome.tabs.create({ url: WEB_APP + "/dashboard/reviews" });
+  };
 })();

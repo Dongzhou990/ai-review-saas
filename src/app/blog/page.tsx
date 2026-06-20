@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "\u535a\u5ba2 - Kuki AI \u7535\u5546\u8bc4\u8bba\u7ba1\u7406",
+  title: "\u535a\u5ba2 - 口碑助手 \u7535\u5546\u8bc4\u8bba\u7ba1\u7406",
   description: "\u4e86\u89e3 AI \u7535\u5546\u8bc4\u8bba\u7ba1\u7406\u3001\u81ea\u52a8\u56de\u590d\u3001\u5dee\u8bc4\u631d\u6551\u7b49\u5b9e\u7528\u6280\u5de7\u3002",
 };
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Review Reply Guide - Kuki AI",
+  title: "AI Review Reply Guide - 口碑助手",
   description: "Learn how to use AI to automatically reply to e-commerce reviews on Taobao, Douyin, Pinduoduo and more.",
 };
 
@@ -23,9 +23,9 @@ export default function PostPage() {
             <li>Support multiple platforms: Taobao, Douyin, Pinduoduo, JD, Ctrip, Meituan, and more</li>
             <li>Save 90% of labor costs, letting your team focus on complex issues</li>
           </ul>
-          <h2 className="text-xl font-bold mt-8 mb-3 text-gray-900 dark:text-gray-100">Getting Started with Kuki AI</h2>
+          <h2 className="text-xl font-bold mt-8 mb-3 text-gray-900 dark:text-gray-100">Getting Started with 口碑助手</h2>
           <ol className="list-decimal pl-6 space-y-2">
-            <li>Register for a free Kuki AI account</li>
+            <li>Register for a free 口碑助手 account</li>
             <li>Add your store and select the platform</li>
             <li>Install the Chrome extension for one-click AI replies</li>
             <li>Review and publish - you stay in full control</li>

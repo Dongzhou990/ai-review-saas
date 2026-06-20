@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "E-commerce Review Management Best Practices - Kuki AI",
+  title: "E-commerce Review Management Best Practices - 口碑助手",
   description: "Learn how to turn negative reviews into positive ones with effective reply strategies for hotel and e-commerce sellers.",
 };
 
@@ -26,7 +26,7 @@ export default function PostPage() {
           <h2 className="text-xl font-bold mt-8 mb-3 text-gray-900 dark:text-gray-100">E-commerce Store Tips</h2>
           <p>For Taobao, Douyin, and JD sellers, reviews about product quality, shipping speed, and customer service matter most. AI-generated replies can include product-specific details and invite happy customers to return.</p>
           <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center">
-            <Link href="/register" className="text-blue-600 font-semibold hover:underline">Try Kuki AI Free</Link> - Automate your review replies today.
+            <Link href="/register" className="text-blue-600 font-semibold hover:underline">Try 口碑助手 Free</Link> - Automate your review replies today.
           </div>
         </div>
       </article>

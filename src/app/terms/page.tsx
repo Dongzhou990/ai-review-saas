@@ -9,7 +9,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold mb-3">1. 服务说明</h2>
             <p className="text-gray-600 dark:text-gray-400">
-              Kuki AI 提供基于人工智能的电商评论管理服务，包括自动生成评论回复、
+              口碑助手 提供基于人工智能的门店评论管理服务，包括自动生成评论回复、
               评论数据分析等功能。服务按订阅制收费，具体价格以网站公示为准。
             </p>
           </section>
@@ -35,7 +35,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold mb-3">4. AI生成内容免责声明</h2>
             <p className="text-gray-600 dark:text-gray-400">
-              Kuki AI 使用AI模型生成评论回复，生成内容仅供参考。
+              口碑助手 使用AI模型生成评论回复，生成内容仅供参考。
               您应审核AI生成的内容后再发布，对最终发布的回复内容承担全部责任。
               我们不保证AI生成内容100%准确、适当或符合特定场景需求。
             </p>
@@ -52,7 +52,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold mb-3">6. 知识产权</h2>
             <p className="text-gray-600 dark:text-gray-400">
-              Kuki AI 平台的所有技术、设计、代码等知识产权归我们所有。
+              口碑助手 平台的所有技术、设计、代码等知识产权归我们所有。
               您保留对您发布内容的所有权利。
             </p>
           </section>

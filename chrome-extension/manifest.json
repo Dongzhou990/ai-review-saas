@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Kuki AI - 电商评论智能回复",
-  "version": "1.0.0",
-  "description": "AI 自动生成电商评论回复，支持淘宝、抖音、拼多多。好评感谢、差评挽回，一键生成。",
+  "name": "口碑助手 - AI门店口碑插件",
+  "version": "2.0.0",
+  "description": "在美团、大众点评、携程后台一键生成AI差评回复，不用复制粘贴。",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -10,25 +10,23 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Kuki AI"
+    "default_title": "口碑助手"
   },
   "content_scripts": [
     {
       "matches": [
-        "*://*.taobao.com/*",
-        "*://*.tmall.com/*",
-        "*://*.jd.com/*",
-        "*://*.pinduoduo.com/*",
-        "*://*.douyin.com/*",
-        "*://*.yangkeduo.com/*",
-        "*://seller.taobao.com/*",
-        "*://myseller.taobao.com/*",
-        "*://fxg.jinritemai.com/*",
-        "*://seller.jd.com/*",
+        "*://*.meituan.com/*",
+        "*://*.dianping.com/*",
         "*://*.ctrip.com/*",
         "*://*.qunar.com/*",
-        "*://*.meituan.com/*",
-        "*://*.fliggy.com/*"
+        "*://*.fliggy.com/*",
+        "*://e.meituan.com/*",
+        "*://e.dianping.com/*",
+        "*://ebooking.ctrip.com/*",
+        "*://hotel.meituan.com/*",
+        "*://*.xiaohongshu.com/*",
+        "*://seller.taobao.com/*",
+        "*://fxg.jinritemai.com/*"
       ],
       "js": ["content.js"],
       "css": ["content.css"],
@@ -40,9 +38,9 @@
   },
   "permissions": ["storage"],
   "host_permissions": [
+    "http://localhost:3459/*",
     "https://reviewai.chat/*",
-    "https://ai-review-saas-one.vercel.app/*",
-    "https://rrymgmjwluifybwrgbce.supabase.co/*"
+    "https://ai-review-saas-one.vercel.app/*"
   ],
   "web_accessible_resources": [
     {

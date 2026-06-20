@@ -35,7 +35,7 @@ export default function RegisterPage() {
         setError(data.error || "注册失败");
         setLoading(false);
       } else {
-        router.push("/dashboard");
+        router.push("/dashboard/reviews");
         router.refresh();
       }
     } catch {
@@ -45,7 +45,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/">
@@ -54,13 +54,13 @@ export default function RegisterPage() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">免费注册</CardTitle>
-            <CardDescription>7 天 Pro 试用，无需信用卡</CardDescription>
+            <CardTitle className="text-2xl">免费注册口碑助手</CardTitle>
+            <CardDescription>每天 3 条免费，满意再升级。不绑卡。</CardDescription>
           </CardHeader>
           <form onSubmit={handleRegister}>
             <CardContent className="space-y-4">
               {error && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
                   {error}
                 </div>
               )}
@@ -105,17 +105,17 @@ export default function RegisterPage() {
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+                  <div className="w-full border-t border-gray-200" />
                 </div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="bg-white dark:bg-gray-900 px-3 text-gray-400">一键注册</span>
+                  <span className="bg-white px-3 text-gray-400">一键注册</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <a
                   href="/api/auth/wechat"
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors text-sm font-medium"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 hover:bg-green-50 transition-colors text-sm font-medium"
                 >
                   <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348z"/>
@@ -124,7 +124,7 @@ export default function RegisterPage() {
                 </a>
                 <a
                   href="/api/auth/qq"
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-sm font-medium"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 hover:bg-blue-50 transition-colors text-sm font-medium"
                 >
                   <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M21.395 15.035a39.548 39.548 0 00-.803-2.264l-1.079-2.695c.001-.032.014-.562.014-.836C19.527 4.661 17.127 2 12.088 2S4.409 4.83 4.409 9.24c0 3.572 2.666 6.525 6.28 7.286l-.672 2.004c-.104.313-.177.548-.177.655 0 .381.295.62.689.62.168 0 .354-.073.529-.207l2.428-1.831c.998.154 2.03.232 3.065.232 1.033 0 2.053-.077 3.043-.229l2.412 1.83c.175.135.361.208.53.208.394 0 .69-.239.69-.62 0-.108-.074-.344-.179-.657l-.673-2.006z"/>

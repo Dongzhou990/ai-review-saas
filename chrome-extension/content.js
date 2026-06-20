@@ -1,329 +1,337 @@
-// Kuki AI - Content Script
-// Injects AI reply buttons into e-commerce platform review pages
-
+// 口碑助手 - Content Script v2.0
+// 在美团/大众点评/携程后台页面注入AI回复按钮
 (function () {
   "use strict";
 
-  const AI_BUTTON_CLASS = "kuki-ai-reply-btn";
-  const AI_PANEL_CLASS = "kuki-ai-panel";
-  let isProcessing = false;
+  const AI_BTN_CLASS = "kb-ai-reply-btn";
+  const API_BASE = "https://reviewai.chat"; // 本地开发；部署后改为 https://reviewai.chat
+
+  const REPLY_STYLES = [
+    { value: "professional", label: "诚恳道歉" },
+    { value: "friendly", label: "真诚安抚" },
+    { value: "apologetic", label: "私下沟通" },
+  ];
 
   // ============================================
-  // Platform Detection
+  // 平台检测
   // ============================================
   function detectPlatform() {
     const host = location.hostname;
-    if (host.includes("taobao.com") || host.includes("tmall.com"))
-      return "taobao";
-    if (host.includes("jd.com")) return "jd";
-    if (host.includes("douyin.com") || host.includes("jinritemai.com"))
-      return "douyin";
-    if (host.includes("pinduoduo.com") || host.includes("yangkeduo.com"))
-      return "pinduoduo";
+    if (host.includes("meituan.com")) return "meituan";
+    if (host.includes("dianping.com")) return "dianping";
     if (host.includes("ctrip.com")) return "ctrip";
     if (host.includes("qunar.com")) return "qunar";
-    if (host.includes("meituan.com")) return "meituan";
     if (host.includes("fliggy.com")) return "fliggy";
+    if (host.includes("xiaohongshu.com")) return "xiaohongshu";
+    if (host.includes("taobao.com") || host.includes("tmall.com")) return "taobao";
+    if (host.includes("jinritemai.com")) return "douyin";
     return "unknown";
   }
 
-  const platform = detectPlatform();
+  const PLATFORM = detectPlatform();
+  console.log("[口碑助手] 检测到平台:", PLATFORM);
 
   // ============================================
-  // Review Extraction Strategies by Platform
+  // 平台选择器配置
   // ============================================
-  function findReviewContainers() {
-    var hotelSelectors = {
-      ctrip: ["[class*=\"comment_detail\"]", "[class*=\"commentItem\"]", "[class*=\"hotel_comment\"]", "[class*=\"comment_mod\"]"],
-      qunar: ["[class*=\"e_comment\"]", "[class*=\"comment_list\"] [class*=\"item\"]", "[class*=\"review-item\"]"],
-      meituan: ["[class*=\"review-item\"]", "[class*=\"poi-review-item\"]", "[class*=\"comment-item\"]"],
-      fliggy: ["[class*=\"rate-item\"]", "[class*=\"comment-item-wrap\"]", "[class*=\"review-con\"]"],
-    };
-
-    var selectors = [];
-
-    // Platform-specific selectors first (higher priority)
-    if (hotelSelectors[platform]) {
-      selectors = selectors.concat(hotelSelectors[platform]);
-    }
-
-    // Generic selectors for all platforms
-    selectors = selectors.concat([
-      "[class*=\"review\"]",
-      "[class*=\"comment\"]",
-      "[class*=\"evaluate\"]",
-      "[class*=\"feedback\"]",
-      "[class*=\"rate-item\"]",
-      "[class*=\"comment-item\"]",
-      "[class*=\"review-item\"]",
-      "[class*=\"\u8bc4\u4ef7\"]",
-      // Platform-specific fallbacks
-      ".rate-item", ".tb-rate-item", ".mod-rate-item",
-      ".comment-item", ".mc-comment-item",
-      ".evaluate-item", ".comment-detail",
-    ]);
-
-    for (var i = 0; i < selectors.length; i++) {
-      var sel = selectors[i];
-      var elements = document.querySelectorAll(sel);
-      if (elements.length > 0) {
-        return Array.from(elements).filter(function(el) {
-          var text = (el.textContent || "").trim();
-          return text.length > 15;
-        });
+  const SELECTORS = {
+    meituan: {
+      reviewBlock: [
+        ".review-item", ".comment-item", ".poi-review-item",
+        "[class*=review]", "[class*=comment-list] li",
+        ".unreply-item", ".wait-reply-item"
+      ],
+      replyTextarea: [
+        "textarea", "[contenteditable=true]",
+        ".reply-input textarea", ".reply-box textarea",
+        "[class*=reply] textarea", "[class*=reply] [contenteditable]"
+      ],
+      reviewContent: (el) => (el.textContent || "").trim(),
+      reviewerName: (el) => {
+        const m = (el.textContent || "").match(/([^\s]{2,6})(?:用户|会员|客人)/);
+        return m ? m[1] : "顾客";
+      },
+      rating: (el) => {
+        const stars = (el.textContent || "").match(/★/g) || [];
+        return Math.min(5, Math.max(1, stars.length || 3));
       }
+    },
+    dianping: {
+      reviewBlock: [
+        ".review-item", ".comment-item", ".J_comment-item",
+        "[class*=review]", "[class*=comment-list] li",
+        ".unreply-item"
+      ],
+      replyTextarea: [
+        "textarea", "[contenteditable=true]",
+        ".reply-content textarea", ".J_reply-input"
+      ],
+      reviewContent: (el) => (el.textContent || "").trim(),
+      reviewerName: (el) => {
+        const m = (el.textContent || "").match(/([^\s]{2,6})(?:用户|会员)/);
+        return m ? m[1] : "顾客";
+      },
+      rating: (el) => {
+        const stars = (el.textContent || "").match(/★/g) || [];
+        return Math.min(5, Math.max(1, stars.length || 3));
+      }
+    },
+    ctrip: {
+      reviewBlock: [
+        ".comment_detail", ".commentItem", ".hotel_comment",
+        "[class*=comment-mod]", ".review-item-wrap"
+      ],
+      replyTextarea: [
+        "textarea", "[contenteditable=true]",
+        ".reply-input textarea", ".reply-container textarea"
+      ],
+      reviewContent: (el) => (el.textContent || "").trim(),
+      reviewerName: (el) => {
+        const m = (el.textContent || "").match(/([^\s]{1,4})(?:先生|女士|小姐)/);
+        return m ? m[1] + m[2] : "客人";
+      },
+      rating: (el) => (el.querySelectorAll(".star-full, .star-on, [class*=star]").length || 3)
     }
+  };
 
-    // Fallback: scan all visible text blocks for review patterns
-    var allTextBlocks = document.querySelectorAll("div, section, article, li, p");
-    return Array.from(allTextBlocks).filter(function(el) {
-      var text = (el.textContent || "").trim();
-      var hasStars = text.indexOf("\u2605") !== -1 || text.indexOf("\u2b50") !== -1 || text.indexOf("\u8bc4\u5206") !== -1;
-      return hasStars && text.length > 30;
-    });
+  // 通用选择器回退
+  const GENERIC = {
+    reviewBlock: [
+      "[class*=review]", "[class*=comment]", "[class*=evaluate]",
+      "[class*=feedback]", "[class*=rate-item]",
+    ],
+    replyTextarea: ["textarea", "[contenteditable=true]"],
+    reviewContent: (el) => (el.textContent || "").trim(),
+    reviewerName: () => "顾客",
+    rating: () => 3,
+  };
+
+  function getSelectors() {
+    return SELECTORS[PLATFORM] || GENERIC;
   }
-        text.includes("★") || text.includes("⭐") || text.includes("评分");
-      return hasStars && text.length > 30;
-    });
+
+  // ============================================
+  // 找到页面中的评论区块
+  // ============================================
+  function findReviewBlocks() {
+    const sel = getSelectors();
+    const all = sel.reviewBlock;
+
+    for (const s of all) {
+      const els = document.querySelectorAll(s);
+      if (els.length > 0) {
+        return Array.from(els).filter(el => (el.textContent || "").trim().length > 20);
+      }
+    }
+    return [];
   }
 
   // ============================================
-  // Extract Review Data from Container
+  // 找到回复输入框
   // ============================================
-  function extractReviewData(container) {
-    const text = container.textContent?.trim() || "";
-    const stars = (text.match(/★/g) || text.match(/⭐/g) || []).length;
-    const rating = stars || 3; // Default to 3 if can't detect
+  function findReplyTextarea(nearEl) {
+    const sel = getSelectors();
+    const all = sel.replyTextarea;
 
-    // Try to find buyer name
-    const nameMatch = text.match(
-      /([一-龥]{2,4})(?:先生|女士|小姐|同学|老板)/
-    );
-    const buyerName = nameMatch ? nameMatch[0] : "买家";
-
-    // Try to find product name
-    const productEl = container.querySelector('[class*="product"], [class*="item"], [class*="goods"], [class*="商品"]');
-    const productName = productEl?.textContent?.trim()?.slice(0, 30) || "";
-
-    // Hotel-specific: extract room type and check-in details
-    var hotelPlatforms = ["ctrip", "qunar", "meituan", "fliggy"];
-    if (hotelPlatforms.indexOf(platform) !== -1) {
-      var roomEl = container.querySelector("[class*=\"room\"], [class*=\"\u623f\u578b\"]");
-      var checkinEl = container.querySelector("[class*=\"checkin\"], [class*=\"\u5165\u4f4f\"], [class*=\"date\"]");
-      if (roomEl) {
-        var roomText = (roomEl.textContent || "").trim().slice(0, 30);
-        productName = roomText || productName;
-      }
-      if (checkinEl) {
-        var dateText = (checkinEl.textContent || "").trim().slice(0, 20);
-        if (dateText) productName = productName + " " + dateText;
+    // 先在附近找
+    if (nearEl) {
+      for (const s of all) {
+        const found = nearEl.querySelector(s) || nearEl.parentElement?.querySelector(s);
+        if (found) return found;
       }
     }
 
+    // 全局找
+    for (const s of all) {
+      const found = document.querySelector(s);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  // ============================================
+  // 提取评论数据
+  // ============================================
+  function extractReview(el) {
+    const sel = getSelectors();
     return {
-      container,
-      text: text.slice(0, 500), // Limit review text
-      rating: Math.min(5, Math.max(1, rating)),
-      buyerName,
-      productName,
+      content: sel.reviewContent(el),
+      reviewerName: sel.reviewerName(el),
+      rating: sel.rating(el),
     };
   }
 
   // ============================================
-  // Inject AI Button
+  // 注入AI回复按钮
   // ============================================
   function injectAIButton(container, reviewData) {
-    // Check if already injected
-    if (container.querySelector(`.${AI_BUTTON_CLASS}`)) return;
+    // 避免重复注入
+    if (container.querySelector("." + AI_BTN_CLASS)) return;
 
     const btn = document.createElement("button");
-    btn.className = AI_BUTTON_CLASS;
-    btn.innerHTML = `<span>✨ AI回复</span>`;
-    btn.title = "Kuki AI 智能生成回复";
-    btn.onclick = (e) => {
+    btn.className = AI_BTN_CLASS;
+    btn.innerHTML = "🤖 AI 回复";
+    btn.title = "点击用AI生成回复";
+    btn.onclick = function (e) {
       e.preventDefault();
       e.stopPropagation();
-      handleGenerateReply(container, reviewData, btn);
+      showStylePicker(container, reviewData);
     };
 
-    container.style.position =
-      container.style.position || "relative";
+    // 插入到评论区块末尾
+    container.style.position = "relative";
     container.appendChild(btn);
   }
 
   // ============================================
-  // Generate Reply
+  // 显示风格选择面板
   // ============================================
-  async function handleGenerateReply(container, reviewData, btn) {
-    if (isProcessing) return;
-    isProcessing = true;
-
-    const originalHTML = btn.innerHTML;
-    btn.innerHTML = `<span class="kuki-spinner"></span> 生成中...`;
-    btn.disabled = true;
-
-    try {
-      const response = await fetch("https://reviewai.chat/api/ai/generate-reply", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          reviewContent: reviewData.text,
-          rating: reviewData.rating,
-          reviewerName: reviewData.buyerName,
-          productName: reviewData.productName,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          showLoginPrompt(container, "请先登录 Kuki AI");
-        } else if (response.status === 402) {
-          showLoginPrompt(container, "免费版次数已用完，请升级 Pro");
-        } else {
-          showError(container, data.error || "AI 生成失败，请重试");
-        }
-        return;
-      }
-
-      showReplyPanel(container, data.reply, reviewData);
-    } catch (err) {
-      showLoginPrompt(container, "网络异常或未登录");
-    } finally {
-      btn.innerHTML = originalHTML;
-      btn.disabled = false;
-      isProcessing = false;
-    }
-  }
-
-  // ============================================
-  // UI: Reply Panel
-  // ============================================
-  function showReplyPanel(container, replyText, reviewData) {
-    // Remove existing panel
-    const existing = container.querySelector(`.${AI_PANEL_CLASS}`);
+  function showStylePicker(container, reviewData) {
+    // 移除已有面板
+    const existing = document.querySelector(".kb-style-panel");
     if (existing) existing.remove();
 
     const panel = document.createElement("div");
-    panel.className = AI_PANEL_CLASS;
+    panel.className = "kb-style-panel";
     panel.innerHTML = `
-      <div class="kuki-panel-header">
-        <span>✨ AI 生成回复</span>
-        <div class="kuki-panel-actions">
-          <button class="kuki-btn-copy" title="复制">📋</button>
-          <button class="kuki-btn-edit" title="编辑">✏️</button>
-          <button class="kuki-btn-close" title="关闭">✕</button>
-        </div>
+      <div class="kb-panel-header">
+        <span>选择回复风格</span>
+        <button class="kb-panel-close">✕</button>
       </div>
-      <div class="kuki-panel-body">${escapeHtml(replyText)}</div>
-      <div class="kuki-panel-footer">
-        <button class="kuki-btn-primary">📋 一键复制回复</button>
-        <span class="kuki-badge">好评感谢</span>
-        ${reviewData.rating <= 2 ? '<span class="kuki-badge kuki-badge-warn">差评挽回</span>' : ""}
+      <div class="kb-styles">
+        ${REPLY_STYLES.map(s =>
+          `<button class="kb-style-btn" data-tone="${s.value}">${s.label}</button>`
+        ).join("")}
+      </div>
+      <div class="kb-panel-result" style="display:none">
+        <div class="kb-result-text"></div>
+        <div class="kb-result-actions">
+          <button class="kb-btn-fill">填入回复框</button>
+          <button class="kb-btn-retry">换一种</button>
+        </div>
       </div>
     `;
 
-    // Event handlers
-    panel.querySelector(".kuki-btn-primary").onclick = () => {
-      navigator.clipboard.writeText(replyText);
-      const btn = panel.querySelector(".kuki-btn-primary");
-      btn.textContent = "✅ 已复制！";
-      setTimeout(() => (btn.textContent = "📋 一键复制回复"), 2000);
-    };
-
-    panel.querySelector(".kuki-btn-copy").onclick = () => {
-      navigator.clipboard.writeText(replyText);
-    };
-
-    panel.querySelector(".kuki-btn-edit").onclick = () => {
-      const body = panel.querySelector(".kuki-panel-body");
-      const currentText = body.textContent;
-      body.innerHTML = `<textarea class="kuki-edit-area">${escapeHtml(currentText)}</textarea>`;
-      panel.querySelector(".kuki-btn-edit").textContent = "💾";
-      panel.querySelector(".kuki-btn-edit").onclick = () => {
-        const edited = body.querySelector("textarea").value;
-        body.textContent = edited;
-        panel.querySelector(".kuki-btn-edit").textContent = "✏️";
-      };
-    };
-
-    panel.querySelector(".kuki-btn-close").onclick = () => panel.remove();
-
     container.appendChild(panel);
-  }
 
-  // ============================================
-  // UI: Error Toast
-  // ============================================
+    // 关闭按钮
+    panel.querySelector(".kb-panel-close").onclick = () => panel.remove();
 
-  function showLoginPrompt(container, msg) {
-    const toast = document.createElement("div");
-    toast.className = "kuki-toast";
-    toast.style.whiteSpace = "nowrap";
-    toast.style.fontSize = "13px";
-    toast.textContent = msg;
-    toast.style.cursor = "pointer";
-    toast.addEventListener("click", function() {
-      window.open("https://reviewai.chat/login", "_blank");
+    // 风格选择 → 调用API
+    panel.querySelectorAll(".kb-style-btn").forEach(b => {
+      b.onclick = async function () {
+        const tone = this.dataset.tone;
+        panel.querySelector(".kb-styles").innerHTML = '<div class="kb-loading">⏳ AI 生成中...</div>';
+
+        const reply = await callGenerateAPI(reviewData, tone);
+
+        const resultDiv = panel.querySelector(".kb-panel-result");
+        const textDiv = panel.querySelector(".kb-result-text");
+
+        if (reply) {
+          textDiv.textContent = reply;
+          resultDiv.style.display = "block";
+        } else {
+          textDiv.textContent = "生成失败，请重试";
+          resultDiv.style.display = "block";
+        }
+      };
     });
-    container.appendChild(toast);
-    setTimeout(function() { toast.remove(); }, 6000);
-  }
-  function showError(container, msg) {
-    const toast = document.createElement("div");
-    toast.className = "kuki-toast";
-    toast.textContent = msg;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-  }
 
-  // ============================================
-  // Helpers
-  // ============================================
-  function escapeHtml(text) {
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
-  }
+    // 填入回复框
+    panel.querySelector(".kb-btn-fill").onclick = function () {
+      const text = panel.querySelector(".kb-result-text").textContent;
+      const textarea = findReplyTextarea(container);
+      if (textarea) {
+        if (textarea.tagName === "TEXTAREA" || textarea.tagName === "INPUT") {
+          textarea.value = text;
+          textarea.dispatchEvent(new Event("input", { bubbles: true }));
+        } else {
+          textarea.textContent = text;
+        }
+        panel.remove();
+      } else {
+        // 找不到输入框，复制到剪贴板
+        navigator.clipboard.writeText(text).then(() => {
+          alert("回复已复制到剪贴板，请粘贴到回复框中");
+          panel.remove();
+        });
+      }
+    };
 
-  // ============================================
-  // Initialize
-  // ============================================
-  function init() {
-    if (platform === "unknown") {
-      console.log("[Kuki AI] 当前页面非电商平台，插件未激活");
-      return;
-    }
-
-    console.log(`[Kuki AI] 检测到平台: ${platform}，正在注入AI回复功能...`);
-
-    // Debounced scan for reviews
-    let scanTimer;
-    function scan() {
-      const containers = findReviewContainers();
-      containers.forEach((container) => {
-        const data = extractReviewData(container);
-        injectAIButton(container, data);
+    // 重新生成
+    panel.querySelector(".kb-btn-retry").onclick = function () {
+      panel.querySelector(".kb-panel-result").style.display = "none";
+      panel.querySelector(".kb-styles").innerHTML = REPLY_STYLES.map(s =>
+        `<button class="kb-style-btn" data-tone="${s.value}">${s.label}</button>`
+      ).join("");
+      // 重新绑定
+      panel.querySelectorAll(".kb-style-btn").forEach(b2 => {
+        b2.onclick = b.onclick;
       });
+    };
+  }
+
+  // ============================================
+  // 调用API生成回复
+  // ============================================
+  async function callGenerateAPI(reviewData, tone) {
+    try {
+      const res = await fetch(`${API_BASE}/api/ai/generate-reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reviewContent: reviewData.content,
+          rating: reviewData.rating,
+          reviewerName: reviewData.reviewerName,
+          tone: tone,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.reply) return data.reply;
+      if (data.error) {
+        console.error("[口碑助手] API错误:", data.error);
+        return null;
+      }
+      return null;
+    } catch (err) {
+      console.error("[口碑助手] 网络错误:", err);
+      return null;
     }
+  }
 
-    // Initial scan after DOM settles
-    setTimeout(scan, 2000);
+  // ============================================
+  // 主扫描逻辑
+  // ============================================
+  function scanAndInject() {
+    const blocks = findReviewBlocks();
+    console.log("[口碑助手] 找到", blocks.length, "个评论区块");
 
-    // Re-scan on DOM changes
-    const observer = new MutationObserver(() => {
-      clearTimeout(scanTimer);
-      scanTimer = setTimeout(scan, 1000);
+    blocks.forEach(block => {
+      const reviewData = extractReview(block);
+      if (reviewData.content.length > 20) {
+        injectAIButton(block, reviewData);
+      }
     });
-    observer.observe(document.body, { childList: true, subtree: true });
   }
 
-  // Start
+  // ============================================
+  // 初始化
+  // ============================================
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", () => setTimeout(scanAndInject, 1500));
   } else {
-    init();
+    setTimeout(scanAndInject, 1500);
   }
+
+  // 监听DOM变化（SPA页面切换）
+  const observer = new MutationObserver(() => {
+    if (!document.querySelector("." + AI_BTN_CLASS)) {
+      scanAndInject();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  console.log("[口碑助手] 插件已加载，监控平台:", PLATFORM);
 })();

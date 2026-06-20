@@ -1,629 +1,232 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/input";
-import { Input } from "@/components/ui/input";
 import {
-  Star,
   Sparkles,
-  Send,
-  Edit3,
+  Copy,
   Check,
-  X,
   Loader2,
-  RefreshCw,
-  Plus,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { getPlatformNames } from "@/lib/platforms";
-const PLATFORMS = getPlatformNames();
 
-interface Review {
-  id: string;
-  buyer_name: string;
-  rating: number;
-  content: string;
-  product_name: string;
-  platform: string;
-  status: "pending" | "replied" | "ignored";
-  created_at: string;
-  reply?: {
-    id: string;
-    content: string;
-    status: string;
-    is_ai_generated: boolean;
-  };
-}
+const REPLY_STYLES = [
+  { value: "professional", label: "诚恳道歉", desc: "先道歉+承诺改进，适合服务类门店" },
+  { value: "friendly", label: "真诚安抚", desc: "温和回应，拉近关系" },
+  { value: "apologetic", label: "私下沟通", desc: "引导私聊解决，适合金额较大的投诉" },
+];
 
 export default function ReviewsPage() {
   const supabase = createClient();
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [generating, setGenerating] = useState<string | null>(null);
-  const [editing, setEditing] = useState<string | null>(null);
-  const [editText, setEditText] = useState("");
-  const [filter, setFilter] = useState<"all" | "pending" | "replied">("all");
+  const [reviewContent, setReviewContent] = useState("");
+  const [selectedStyle, setSelectedStyle] = useState("professional");
+  const [generating, setGenerating] = useState(false);
+  const [result, setResult] = useState("");
+  const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
-  const [stores, setStores] = useState<any[]>([]);
-  const [selectedStore, setSelectedStore] = useState<string>("all");
+  const [remaining, setRemaining] = useState<number | null>(null);
 
-  // Add review modal
-  const [showAdd, setShowAdd] = useState(false);
-  const [newReview, setNewReview] = useState({
-    buyer_name: "",
-    rating: 5,
-    content: "",
-    product_name: "",
-    platform: "抖音小店",
-  });
-  const [submitting, setSubmitting] = useState(false);
-
-  const loadReviews = useCallback(async () => {
-    setLoading(true);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  const checkQuota = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+    const { data: sub } = await supabase.from("subscriptions").select("plan, daily_reply_limit").eq("user_id", user.id).single();
+    if (!sub) return;
+    const dailyLimit = typeof sub.daily_reply_limit === "number" ? sub.daily_reply_limit : sub.plan === "pro" ? Infinity : 3;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const { count } = await supabase.from("replies").select("*", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", today.toISOString());
+    setRemaining(Math.max(0, dailyLimit - (count || 0)));
+  }, [supabase]);
 
-    // Load stores for filter
-    const { data: storeList } = await supabase
-      .from("stores")
-      .select("*")
-      .eq("user_id", user.id);
-    if (storeList) setStores(storeList);
+  useEffect(() => { checkQuota(); }, []);
 
-    let query = supabase
-      .from("reviews")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    if (filter === "pending") query = query.eq("status", "pending");
-    if (filter === "replied") query = query.eq("status", "replied");
-    if (selectedStore !== "all") query = query.eq("store_id", selectedStore);
-
-    const { data } = await query;
-
-    // Also load replies for each review
-    if (data) {
-      const reviewIds = data.map((r) => r.id);
-      const { data: replies } = await supabase
-        .from("replies")
-        .select("*")
-        .in("review_id", reviewIds)
-        .eq("user_id", user.id);
-
-      const reviewsWithReplies = data.map((review) => ({
-        ...review,
-        reply: replies?.find((r) => r.review_id === review.id),
-      }));
-
-      setReviews(reviewsWithReplies);
-    }
-    setLoading(false);
-  }, [supabase, filter, selectedStore]);
-
-  useEffect(() => {
-    loadReviews();
-  }, [loadReviews]);
-
-  const handleGenerateReply = async (review: Review) => {
-    setGenerating(review.id);
+  const handleGenerate = async () => {
+    if (!reviewContent.trim()) return;
+    setGenerating(true);
     setError("");
+    setResult("");
 
     try {
       const res = await fetch("/api/ai/generate-reply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
-          reviewContent: review.content,
-          rating: review.rating,
-          reviewerName: review.buyer_name,
-          productName: review.product_name,
+          reviewContent: reviewContent,
+          rating: 3,
+          reviewerName: "顾客",
+          tone: selectedStyle,
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        if (res.status === 402 && data.upgrade) {
-          setError("免费版今日次数已用完，请升级到 Pro 版获取无限次数");
+        if (res.status === 402) {
+          setError("今日免费次数已用完。升级 Pro 后可无限使用。");
         } else if (res.status === 401) {
-          setError("请先登录后再使用 AI 回复");
+          setError("请先登录");
         } else {
-          setError(data.error || "AI 生成失败");
+          setError(data.error || "生成失败，请重试");
         }
-        setGenerating(null);
+        setGenerating(false);
         return;
       }
 
-      // Save reply to Supabase
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: newReply } = await supabase
-        .from("replies")
-        .insert({
-          review_id: review.id,
-          user_id: user.id,
-          content: data.reply,
-          tone: "professional",
-          status: "draft",
-          is_ai_generated: true,
-        })
-        .select()
-        .single();
-
-      // Update review status
-      await supabase
-        .from("reviews")
-        .update({ status: "replied" })
-        .eq("id", review.id);
-
-      setReviews((prev) =>
-        prev.map((r) =>
-          r.id === review.id
-            ? { ...r, reply: newReply, status: "replied" }
-            : r
-        )
-      );
+      setResult(data.reply);
+      checkQuota();
     } catch {
-      setError("网络错误，请稍后重试");
+      setError("网络错误，请检查连接后重试");
     }
-    setGenerating(null);
+    setGenerating(false);
   };
 
-  const handleEditStart = (reviewId: string, currentReply: string) => {
-    setEditing(reviewId);
-    setEditText(currentReply);
-  };
-
-  const handleEditSave = async (review: Review) => {
-    if (!review.reply) return;
-
-    await supabase
-      .from("replies")
-      .update({ content: editText, edited_by_user: true, updated_at: new Date().toISOString() })
-      .eq("id", review.reply.id);
-
-    setReviews((prev) =>
-      prev.map((r) =>
-        r.id === review.id
-          ? { ...r, reply: { ...review.reply!, content: editText } }
-          : r
-      )
-    );
-    setEditing(null);
-  };
-
-  const handlePublishReply = async (review: Review) => {
-    if (!review.reply) return;
-
-    await supabase
-      .from("replies")
-      .update({ status: "published", published_at: new Date().toISOString() })
-      .eq("id", review.reply.id);
-
-    setReviews((prev) =>
-      prev.map((r) =>
-        r.id === review.id
-          ? { ...r, reply: { ...review.reply!, status: "published" } }
-          : r
-      )
-    );
-  };
-
-  const handleAddReview = async () => {
-    if (!newReview.buyer_name.trim() || !newReview.content.trim()) return;
-    setSubmitting(true);
-    setError("");
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      setError("请先登录");
-      setSubmitting(false);
-      return;
-    }
-
-    // 1. Save review (link to selected store if any)
-    const storeId = selectedStore !== "all" ? selectedStore : (stores[0]?.id || null);
-    const platform = newReview.platform || (storeId ? stores.find(s => s.id === storeId)?.platform : "抖音小店") || "抖音小店";
-
-    const { data: review, error: insertError } = await supabase
-      .from("reviews")
-      .insert({
-        user_id: user.id,
-        store_id: storeId,
-        buyer_name: newReview.buyer_name.trim(),
-        rating: newReview.rating,
-        content: newReview.content.trim(),
-        product_name: newReview.product_name.trim() || "商品",
-        platform,
-        status: "pending",
-        reviewed_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
-
-    if (insertError) {
-      setError("导入失败: " + insertError.message);
-      setSubmitting(false);
-      return;
-    }
-
-    setShowAdd(false);
-    setNewReview({ buyer_name: "", rating: 5, content: "", product_name: "", platform: "抖音小店" });
-    setSubmitting(false);
-
-    // 2. Auto-generate AI reply
-    if (review) {
-      setGenerating(review.id);
-      try {
-        const res = await fetch("/api/ai/generate-reply", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            reviewContent: review.content,
-            rating: review.rating,
-            reviewerName: review.buyer_name,
-            productName: review.product_name,
-          }),
-        });
-        const data = await res.json();
-        if (res.ok) {
-          await supabase.from("replies").insert({
-            review_id: review.id,
-            user_id: user.id,
-            content: data.reply,
-            status: "draft",
-            is_ai_generated: true,
-          });
-          await supabase.from("reviews").update({ status: "replied" }).eq("id", review.id);
-        } else {
-          setError(data.error || "AI 生成失败，可稍后点击'AI生成回复'重试");
-        }
-      } catch (err: any) {
-        setError("AI 生成失败: " + (err?.message || "网络错误"));
-      }
-      setGenerating(null);
-      loadReviews();
-    }
-  };
-
-  const getRatingColor = (rating: number) => {
-    if (rating >= 4) return "text-green-500";
-    if (rating >= 3) return "text-yellow-500";
-    return "text-red-500";
-  };
-
-  const getRatingBadge = (rating: number) => {
-    if (rating >= 4) return { label: "好评", variant: "success" as const };
-    if (rating >= 3) return { label: "中评", variant: "warning" as const };
-    return { label: "差评", variant: "danger" as const };
+  const handleCopy = () => {
+    navigator.clipboard.writeText(result);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold">评论管理</h1>
-        <div className="flex gap-2 items-center">
-          <select
-            className="h-9 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 text-sm"
-            value={selectedStore}
-            onChange={(e) => setSelectedStore(e.target.value)}
-          >
-            <option value="all">全部店铺</option>
-            {stores.map((s) => (
-              <option key={s.id} value={s.id}>{s.platform} - {s.name}</option>
-            ))}
-          </select>
-          <Button variant="primary" size="sm" onClick={() => setShowAdd(true)}>
-            <Plus className="w-4 h-4" /> 导入评论
-          </Button>
-          <Button
-            variant={filter === "all" ? "outline" : "ghost"}
-            size="sm"
-            onClick={() => setFilter("all")}
-          >
-            全部
-          </Button>
-          <Button
-            variant={filter === "pending" ? "outline" : "ghost"}
-            size="sm"
-            onClick={() => setFilter("pending")}
-          >
-            待回复
-          </Button>
-          <Button
-            variant={filter === "replied" ? "outline" : "ghost"}
-            size="sm"
-            onClick={() => setFilter("replied")}
-          >
-            已回复
-          </Button>
-          <Button variant="ghost" size="sm" onClick={loadReviews}>
-            <RefreshCw className="w-4 h-4" />
-          </Button>
-        </div>
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* Remaining Quota */}
+      <div className="flex items-center justify-between text-sm text-gray-500">
+        <span>
+          今日剩余：
+          <strong className="text-blue-600">{remaining !== null ? remaining : "..."}</strong>
+          条
+        </span>
+        {remaining === 0 && (
+          <a href="/#pricing" className="text-blue-600 font-medium hover:underline">
+            升级 Pro 无限用 →
+          </a>
+        )}
       </div>
 
-      {/* Add Review Modal */}
-      {showAdd && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-lg mx-4 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">导入评论</h2>
-              <button onClick={() => setShowAdd(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                <X className="w-5 h-5" />
-              </button>
+      {/* Main Input */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+        <h2 className="text-lg font-bold mb-1">粘贴差评，AI 帮你回</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          从美团、大众点评、携程复制顾客差评，粘贴到下面。AI 会根据内容生成回复，不是套模板。
+        </p>
+
+        <textarea
+          className="w-full h-40 p-4 rounded-xl border border-gray-300 bg-gray-50 text-base resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+          placeholder={`例如：\n房间有异味，前台服务态度很差，等了半小时才办完入住。不会再来了。`}
+          value={reviewContent}
+          onChange={(e) => setReviewContent(e.target.value)}
+        />
+
+        {/* Style Selector */}
+        <div className="flex items-center gap-3 mt-4 flex-wrap">
+          <span className="text-sm text-gray-500">回复风格：</span>
+          {REPLY_STYLES.map((s) => (
+            <button
+              key={s.value}
+              onClick={() => setSelectedStyle(s.value)}
+              className={`px-4 py-2 rounded-full text-sm transition-all ${
+                selectedStyle === s.value
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+              title={s.desc}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+
+        <Button
+          variant="primary"
+          size="xl"
+          className="w-full mt-6"
+          onClick={handleGenerate}
+          disabled={!reviewContent.trim() || generating || remaining === 0}
+        >
+          {generating ? (
+            <><Loader2 className="w-5 h-5 animate-spin" /> AI 生成中...</>
+          ) : remaining === 0 ? (
+            "今日次数已用完"
+          ) : (
+            <><Sparkles className="w-5 h-5" /> 生成回复</>
+          )}
+        </Button>
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
+      {/* Result */}
+      {result && (
+        <div className="bg-white rounded-2xl border border-green-200 p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-bold flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-blue-600" />
+              AI 生成的回复
+            </h2>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => { setReviewContent(""); setResult(""); }}>
+                重新生成
+              </Button>
+              <Button variant="primary" size="sm" onClick={handleCopy}>
+                {copied ? <><Check className="w-4 h-4" /> 已复制</> : <><Copy className="w-4 h-4" /> 复制</>}
+              </Button>
             </div>
-            <p className="text-sm text-gray-500 mb-4">
-              粘贴买家评论，AI 会自动生成回复
-            </p>
+          </div>
+          <div className="p-4 bg-gray-50 rounded-xl text-base leading-relaxed whitespace-pre-wrap">
+            {result}
+          </div>
+          <p className="text-xs text-gray-400 mt-3">
+            💡 复制后粘贴到美团/大众点评的回复框发布
+          </p>
+        </div>
+      )}
 
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-sm font-medium mb-1 block">买家昵称</label>
-                  <Input
-                    placeholder="如：张先生"
-                    value={newReview.buyer_name}
-                    onChange={(e) => setNewReview({ ...newReview, buyer_name: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">平台</label>
-                  <select
-                    className="w-full h-10 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 text-sm"
-                    value={newReview.platform}
-                    onChange={(e) => setNewReview({ ...newReview, platform: e.target.value })}
-                  >
-                    {PLATFORMS.map((p) => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+      {/* Upgrade CTA */}
+      {remaining !== null && remaining <= 1 && remaining > 0 && (
+        <div className="text-center p-6 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
+          <p className="font-bold text-lg mb-2">每天 3 条不够用？</p>
+          <p className="text-gray-600 mb-4 text-sm">Pro 版 ¥99/月，无限次数 + 差评分析 + 好评邀约</p>
+          <a href="/#pricing">
+            <Button variant="primary">升级 Pro · ¥99/月</Button>
+          </a>
+        </div>
+      )}
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-sm font-medium mb-1 block">评分</label>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        onClick={() => setNewReview({ ...newReview, rating: star })}
-                        className={`text-2xl transition-colors ${
-                          star <= newReview.rating ? "text-yellow-400" : "text-gray-300 dark:text-gray-600"
-                        }`}
-                      >
-                        ★
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">商品名称</label>
-                  <Input
-                    placeholder="如：蓝牙耳机"
-                    value={newReview.product_name}
-                    onChange={(e) => setNewReview({ ...newReview, product_name: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-1 block">评论内容</label>
-                <Textarea
-                  placeholder="粘贴买家评论内容..."
-                  rows={4}
-                  value={newReview.content}
-                  onChange={(e) => setNewReview({ ...newReview, content: e.target.value })}
-                />
-              </div>
-
-              <div className="flex gap-3 justify-end pt-2">
-                <Button variant="ghost" onClick={() => setShowAdd(false)}>取消</Button>
-                <Button
-                  variant="primary"
-                  onClick={handleAddReview}
-                  disabled={!newReview.buyer_name.trim() || !newReview.content.trim() || submitting}
-                >
-                  {submitting ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> 导入中...</>
-                  ) : (
-                    <><Plus className="w-4 h-4" /> 导入并生成回复</>
-                  )}
-                </Button>
-              </div>
+      {/* Welcome / Empty state */}
+      {!result && !generating && !reviewContent && (
+        <div className="text-center py-10 bg-gradient-to-b from-blue-50 to-white rounded-2xl border border-blue-100">
+          <div className="text-5xl mb-4">👋</div>
+          <p className="text-xl font-bold text-gray-800 mb-2">欢迎使用口碑助手</p>
+          <p className="text-gray-500 mb-6 max-w-md mx-auto">
+            第一步：从美团、大众点评、携程复制一条差评/好评，粘贴到上面的输入框，点击生成。
+          </p>
+          <div className="flex items-center justify-center gap-8 text-sm text-gray-400">
+            <div className="text-center">
+              <div className="text-2xl mb-1">1️⃣</div>
+              <p>复制差评</p>
+            </div>
+            <div className="text-gray-300 text-2xl">→</div>
+            <div className="text-center">
+              <div className="text-2xl mb-1">2️⃣</div>
+              <p>粘贴进来</p>
+            </div>
+            <div className="text-gray-300 text-2xl">→</div>
+            <div className="text-center">
+              <div className="text-2xl mb-1">3️⃣</div>
+              <p>选风格生成</p>
+            </div>
+            <div className="text-gray-300 text-2xl">→</div>
+            <div className="text-center">
+              <div className="text-2xl mb-1">4️⃣</div>
+              <p>复制发布</p>
             </div>
           </div>
         </div>
       )}
-
-      {error && (
-        <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 text-sm">
-          {error}
-          <button className="ml-2 underline" onClick={() => setError("")}>
-            关闭
-          </button>
-        </div>
-      )}
-
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        </div>
-      ) : reviews.length === 0 ? (
-        <Card>
-          <CardContent className="p-12 text-center text-gray-500">
-            <MessageIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p className="text-lg font-medium">暂无评论</p>
-            <p className="text-sm mt-1">
-              连接店铺后，评论会自动同步到这里
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {reviews.map((review) => (
-            <Card key={review.id}>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-medium">
-                    {review.buyer_name[0]}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium">{review.buyer_name}</span>
-                      <span className={getRatingColor(review.rating)}>
-                        {"★".repeat(review.rating)}
-                        {"☆".repeat(5 - review.rating)}
-                      </span>
-                      <Badge variant={getRatingBadge(review.rating).variant}>
-                        {getRatingBadge(review.rating).label}
-                      </Badge>
-                      <span className="text-xs text-gray-400">
-                        {review.platform}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                      {review.content}
-                    </p>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                      <span>{review.product_name}</span>
-                      <span>
-                        {new Date(review.created_at).toLocaleDateString("zh-CN")}
-                      </span>
-                    </div>
-
-                    {/* AI Reply */}
-                    {review.reply && (
-                      <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-lg border border-blue-100 dark:border-blue-900">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Sparkles className="w-4 h-4 text-blue-600" />
-                          <span className="text-xs font-medium text-blue-600">
-                            {review.reply.is_ai_generated ? "AI 生成回复" : "回复"}
-                          </span>
-                          <Badge variant="success" className="text-xs">
-                            {review.reply.status === "published"
-                              ? "已发布"
-                              : "草稿"}
-                          </Badge>
-                        </div>
-                        {editing === review.id ? (
-                          <div className="space-y-2">
-                            <Textarea
-                              value={editText}
-                              onChange={(e) => setEditText(e.target.value)}
-                              className="text-sm"
-                              rows={2}
-                            />
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="primary"
-                                onClick={() => handleEditSave(review)}
-                              >
-                                <Check className="w-4 h-4" /> 保存
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => setEditing(null)}
-                              >
-                                <X className="w-4 h-4" /> 取消
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
-                              {review.reply.content}
-                            </p>
-                            <div className="flex gap-2 mt-3">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() =>
-                                  handleEditStart(
-                                    review.id,
-                                    review.reply!.content
-                                  )
-                                }
-                              >
-                                <Edit3 className="w-3 h-3" /> 编辑
-                              </Button>
-                              {review.reply.status !== "published" && (
-                                <Button
-                                  size="sm"
-                                  variant="primary"
-                                  onClick={() => handlePublishReply(review)}
-                                >
-                                  <Send className="w-3 h-3" /> 发布回复
-                                </Button>
-                              )}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Generate button for unreplied */}
-                {!review.reply && (
-                  <div className="mt-4 flex justify-end">
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => handleGenerateReply(review)}
-                      disabled={generating === review.id}
-                    >
-                      {generating === review.id ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          AI 生成中...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4" />
-                          AI 生成回复
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
     </div>
-  );
-}
-
-function MessageIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={1.5}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
-      />
-    </svg>
   );
 }

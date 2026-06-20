@@ -33,7 +33,12 @@ export async function POST(request: NextRequest) {
         .eq("user_id", user.id)
         .gte("created_at", today.toISOString());
 
-      if (count && count >= sub.daily_reply_limit) {
+      // Fallback: if daily_reply_limit is not set, Pro = Infinity, Free = 3
+      const dailyLimit = typeof sub.daily_reply_limit === "number"
+        ? sub.daily_reply_limit
+        : sub.plan === "pro" ? Infinity : 3;
+
+      if (count !== null && count >= dailyLimit) {
         return NextResponse.json(
           {
             error:

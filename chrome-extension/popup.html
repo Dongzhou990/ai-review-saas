@@ -1,43 +1,42 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kuki AI</title>
-<link rel="stylesheet" href="popup.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>口碑助手</title>
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-<div class="popup">
-  <div class="header">
-    <span class="logo">🐱 Kuki AI</span>
-    <span class="version">v2.0</span>
-  </div>
-
-  <div class="state">
-    <p class="subtitle">AI 电商评论智能回复</p>
-
-    <div class="actions">
-      <button id="btn-login-web" class="btn-primary">🔐 登录 Kuki AI</button>
-      <button id="btn-open-app" class="btn-secondary" style="display:none;">📊 打开管理后台</button>
+  <div class="popup-container">
+    <div class="popup-header">
+      <span class="popup-logo">🤖</span>
+      <h1>口碑助手</h1>
+      <span class="popup-version">v2.0</span>
+    </div>
+    <p class="popup-desc">AI门店口碑运营插件</p>
+    
+    <div class="popup-status" id="status">
+      <span class="status-dot"></span>
+      <span id="statusText">检测中...</span>
     </div>
 
-    <div class="platform-hint">
-      <p>💡 支持平台自动识别：</p>
-      <div class="platforms">
-        <span>🛒 淘宝</span><span>🎵 抖音</span><span>📱 拼多多</span>
-        <span>🏪 京东</span><span>✈️ 携程</span><span>🏨 去哪儿</span>
-        <span>🍜 美团</span><span>🐷 飞猪</span>
+    <div class="popup-actions">
+      <button id="btnOpenApp" class="btn-primary">打开网页版</button>
+      <button id="btnHowTo" class="btn-secondary">使用说明</button>
+    </div>
+
+    <div class="popup-platforms">
+      <p class="platforms-title">支持的平台：</p>
+      <div class="platform-tags">
+        <span>美团</span><span>大众点评</span><span>携程</span>
+        <span>去哪儿</span><span>飞猪</span>
       </div>
-      <p style="font-size:11px;color:#999;margin-top:8px;">
-        打开商家后台 → 查看评论 → 点"✨ AI回复"<br>
-        未登录会自动跳转登录页
-      </p>
     </div>
 
-    <button id="btn-reload" class="btn-ghost">🔄 重新加载插件</button>
+    <div class="popup-footer">
+      <a href="http://localhost:3459" target="_blank">打开口碑助手网页版 →</a>
+    </div>
   </div>
-</div>
-
-<script src="popup.js"></script>
+  <script src="popup.js"></script>
 </body>
 </html>

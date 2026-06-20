@@ -1,13 +1,14 @@
-// Kuki AI - Background Service Worker (minimal)
-// Auth now handled via web login; API calls go directly from content script
-
+// 口碑助手 - Background Service Worker v2.0
 const API_BASE = "https://reviewai.chat";
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  if (request.action === "getAuth") {
-    chrome.storage.local.get(["session"], function(result) {
-      sendResponse({ session: result.session || null });
-    });
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  if (request.action === "getApiBase") {
+    sendResponse({ apiBase: API_BASE });
     return true;
   }
+});
+
+// 点击插件图标时，检查是否在支持的平台上
+chrome.action.onClicked.addListener(function (tab) {
+  // 不做额外操作，popup 会自动检测
 });

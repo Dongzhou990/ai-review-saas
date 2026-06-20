@@ -8,12 +8,15 @@ CREATE TABLE stores (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  platform TEXT NOT NULL CHECK (platform IN ('抖音小店', '淘宝', '拼多多', '京东', '携程', '去哪儿', '美团', '飞猪', 'TikTok Shop', 'Shopee')),
+  platform TEXT NOT NULL CHECK (platform IN ('美团', '大众点评', '携程', '抖音', '小红书', '淘宝', '京东', '拼多多', '抖音小店', '其他')),
   platform_store_id TEXT,
   access_token TEXT,
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'disconnected', 'expired')),
   review_count INTEGER DEFAULT 0,
   last_sync_at TIMESTAMPTZ,
+  category TEXT DEFAULT '餐饮' CHECK (category IN ('餐饮', '酒店/民宿', '美容美发', '口腔诊所', '休闲娱乐', '奶茶/咖啡', '其他')),
+  address TEXT,
+  phone TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -60,12 +63,39 @@ CREATE TABLE replies (
   is_ai_generated BOOLEAN DEFAULT true,
   edited_by_user BOOLEAN DEFAULT false,
   published_at TIMESTAMPTZ,
+  category TEXT DEFAULT '餐饮' CHECK (category IN ('餐饮', '酒店/民宿', '美容美发', '口腔诊所', '休闲娱乐', '奶茶/咖啡', '其他')),
+  address TEXT,
+  phone TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 ALTER TABLE replies ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can manage own replies" ON replies
+  FOR ALL USING (auth.uid() = user_id);
+
+-- ============================================
+-- 6. 口碑周报表
+-- ============================================
+CREATE TABLE weekly_reports (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  store_id UUID REFERENCES stores(id) ON DELETE SET NULL,
+  week_start DATE NOT NULL,
+  week_end DATE NOT NULL,
+  summary TEXT,
+  total_reviews INTEGER DEFAULT 0,
+  good_reviews INTEGER DEFAULT 0,
+  bad_reviews INTEGER DEFAULT 0,
+  top_issues JSONB DEFAULT '[]',
+  suggestions JSONB DEFAULT '[]',
+  reply_examples JSONB DEFAULT '[]',
+  invite_suggestion TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE weekly_reports ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage own weekly reports" ON weekly_reports
   FOR ALL USING (auth.uid() = user_id);
 
 -- ============================================
@@ -76,11 +106,17 @@ CREATE TABLE subscriptions (
   user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
   plan TEXT DEFAULT 'free' CHECK (plan IN ('free', 'pro', 'enterprise')),
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'canceled', 'expired')),
-  daily_reply_limit INTEGER DEFAULT 20,
+  daily_reply_limit INTEGER DEFAULT 3,
   store_limit INTEGER DEFAULT 1,
   trial_ends_at TIMESTAMPTZ DEFAULT (now() + INTERVAL '7 days'),
   current_period_start TIMESTAMPTZ DEFAULT now(),
   current_period_end TIMESTAMPTZ DEFAULT (now() + INTERVAL '1 month'),
+  category TEXT DEFAULT '餐饮' CHECK (category IN ('餐饮', '酒店/民宿', '美容美发', '口腔诊所', '休闲娱乐', '奶茶/咖啡', '其他')),
+  address TEXT,
+  phone TEXT,
+  payment_method TEXT DEFAULT 'wechat' CHECK (payment_method IN ('wechat', 'alipay', 'none')),
+  payment_note TEXT,
+  auto_renew BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -88,6 +124,8 @@ CREATE TABLE subscriptions (
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can read own subscription" ON subscriptions
   FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own subscription" ON subscriptions
+  FOR UPDATE USING (auth.uid() = user_id);
 
 -- ============================================
 -- 5. 用户配置表
@@ -100,6 +138,9 @@ CREATE TABLE user_settings (
   auto_publish_medium BOOLEAN DEFAULT false,
   auto_publish_bad BOOLEAN DEFAULT false,
   language TEXT DEFAULT 'zh' CHECK (language IN ('zh', 'en')),
+  category TEXT DEFAULT '餐饮' CHECK (category IN ('餐饮', '酒店/民宿', '美容美发', '口腔诊所', '休闲娱乐', '奶茶/咖啡', '其他')),
+  address TEXT,
+  phone TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -179,6 +220,9 @@ CREATE TABLE meetings (
   key_points JSONB DEFAULT '[]'::jsonb,
   status TEXT DEFAULT 'processing' CHECK (status IN ('processing', 'completed', 'failed', 'deleted')),
   duration_minutes INTEGER,
+  category TEXT DEFAULT '餐饮' CHECK (category IN ('餐饮', '酒店/民宿', '美容美发', '口腔诊所', '休闲娱乐', '奶茶/咖啡', '其他')),
+  address TEXT,
+  phone TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -202,6 +246,9 @@ CREATE TABLE meeting_action_items (
   priority TEXT DEFAULT 'medium' CHECK (priority IN ('high', 'medium', 'low')),
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled')),
   due_date TIMESTAMPTZ,
+  category TEXT DEFAULT '餐饮' CHECK (category IN ('餐饮', '酒店/民宿', '美容美发', '口腔诊所', '休闲娱乐', '奶茶/咖啡', '其他')),
+  address TEXT,
+  phone TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
