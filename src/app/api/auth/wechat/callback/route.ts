@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     const supabase = await createServerSupabase();
 
     // Use admin API to create/find user by OAuth identity
-    const email = `${openid}@wechat.kuki.ai`;
+    const email = `${openid}@wechat.reviewai.chat`;
     const password = crypto.randomUUID() + crypto.randomUUID();
 
     // Try sign up first; if user already exists, proceed to sign in

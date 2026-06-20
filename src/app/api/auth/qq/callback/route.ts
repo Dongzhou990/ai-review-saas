@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
 
     // 4. Sign in to Supabase
     const supabase = await createServerSupabase();
-    const email = `${openid}@qq.kuki.ai`;
+    const email = `${openid}@qq.reviewai.chat`;
     const password = crypto.randomUUID() + crypto.randomUUID();
 
     // Try sign up first; if user already exists, proceed to sign in
