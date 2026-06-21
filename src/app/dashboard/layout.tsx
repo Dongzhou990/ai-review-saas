@@ -90,21 +90,21 @@ export default function DashboardLayout({
 
   if (!authReady) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
+      <div className="flex h-screen items-center justify-center bg-black">
         <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
       </div>
     );
   }
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-black">
       {/* Sidebar */}
       <aside
-        className={`flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ${
+        className={`flex flex-col bg-neutral-900 border-r border-neutral-800 transition-all duration-300 ${
           collapsed ? "w-20" : "w-64"
         } ${"hidden md:flex"}`}
       >
         {/* Logo */}
-        <div className="flex items-center h-16 px-4 border-b border-gray-200">
+        <div className="flex items-center h-16 px-4 border-b border-neutral-800">
           {collapsed ? (
             <LogoIcon size={24} />
           ) : (
@@ -122,8 +122,8 @@ export default function DashboardLayout({
                 href={item.href}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                   isActive
-                    ? "bg-blue-50 text-blue-700 font-medium"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-blue-500/10 text-blue-700 font-medium"
+                    : "text-neutral-300 hover:bg-gray-100"
                 }`}
               >
                 <item.icon className="w-5 h-5 shrink-0" />
@@ -144,10 +144,10 @@ export default function DashboardLayout({
         )}
 
         {/* Bottom */}
-        <div className="p-4 border-t border-gray-200 space-y-2">
+        <div className="p-4 border-t border-neutral-800 space-y-2">
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-neutral-400 hover:bg-gray-100 transition-colors"
           >
             {collapsed ? (
               <ChevronRight className="w-5 h-5 shrink-0" />
@@ -160,7 +160,7 @@ export default function DashboardLayout({
           </button>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 transition-colors"
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-500/10 transition-colors"
           >
             <LogOut className="w-5 h-5 shrink-0" />
             {!collapsed && <span>退出登录</span>}
@@ -171,14 +171,14 @@ export default function DashboardLayout({
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="h-16 border-b border-gray-200 bg-white flex items-center justify-between px-4 md:px-6">
+        <header className="h-16 border-b border-neutral-800 bg-neutral-900 flex items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setCollapsed(!collapsed)}
               className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
               aria-label="菜单"
             >
-              <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>

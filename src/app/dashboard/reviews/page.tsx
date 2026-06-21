@@ -89,7 +89,7 @@ export default function ReviewsPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Remaining Quota */}
-      <div className="flex items-center justify-between text-sm text-gray-500">
+      <div className="flex items-center justify-between text-sm text-neutral-400">
         <span>
           今日剩余：
           <strong className="text-blue-600">{remaining !== null ? remaining : "..."}</strong>
@@ -103,14 +103,14 @@ export default function ReviewsPage() {
       </div>
 
       {/* Main Input */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+      <div className="bg-neutral-900 rounded-2xl border border-neutral-800 p-6 shadow-sm">
         <h2 className="text-lg font-bold mb-1">粘贴差评，AI 帮你回</h2>
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-sm text-neutral-400 mb-4">
           从美团、大众点评、携程复制顾客差评，粘贴到下面。AI 会根据内容生成回复，不是套模板。
         </p>
 
         <textarea
-          className="w-full h-40 p-4 rounded-xl border border-gray-300 bg-gray-50 text-base resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+          className="w-full h-40 p-4 rounded-xl border border-gray-300 bg-neutral-900 text-base resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
           placeholder={`例如：\n房间有异味，前台服务态度很差，等了半小时才办完入住。不会再来了。`}
           value={reviewContent}
           onChange={(e) => setReviewContent(e.target.value)}
@@ -118,7 +118,7 @@ export default function ReviewsPage() {
 
         {/* Style Selector */}
         <div className="flex items-center gap-3 mt-4 flex-wrap">
-          <span className="text-sm text-gray-500">回复风格：</span>
+          <span className="text-sm text-neutral-400">回复风格：</span>
           {REPLY_STYLES.map((s) => (
             <button
               key={s.value}
@@ -126,7 +126,7 @@ export default function ReviewsPage() {
               className={`px-4 py-2 rounded-full text-sm transition-all ${
                 selectedStyle === s.value
                   ? "bg-blue-600 text-white shadow-md"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  : "bg-gray-100 text-neutral-300 hover:bg-gray-200"
               }`}
               title={s.desc}
             >
@@ -154,14 +154,14 @@ export default function ReviewsPage() {
 
       {/* Error */}
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+        <div className="p-4 rounded-xl bg-red-500/10 border border-red-200 text-red-700 text-sm">
           {error}
         </div>
       )}
 
       {/* Result */}
       {result && (
-        <div className="bg-white rounded-2xl border border-green-200 p-6 shadow-sm">
+        <div className="bg-neutral-900 rounded-2xl border border-green-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-bold flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-blue-600" />
@@ -176,10 +176,10 @@ export default function ReviewsPage() {
               </Button>
             </div>
           </div>
-          <div className="p-4 bg-gray-50 rounded-xl text-base leading-relaxed whitespace-pre-wrap text-gray-800">
+          <div className="p-4 bg-neutral-900 rounded-xl text-base leading-relaxed whitespace-pre-wrap text-white">
             {result}
           </div>
-          <p className="text-xs text-gray-400 mt-3">
+          <p className="text-xs text-neutral-500 mt-3">
             💡 复制后粘贴到美团/大众点评的回复框发布
           </p>
         </div>
@@ -189,7 +189,7 @@ export default function ReviewsPage() {
       {remaining !== null && remaining <= 1 && remaining > 0 && (
         <div className="text-center p-6 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
           <p className="font-bold text-lg mb-2">每天 3 条不够用？</p>
-          <p className="text-gray-600 mb-4 text-sm">Pro 版 ¥99/月，无限次数 + 差评分析 + 好评邀约</p>
+          <p className="text-neutral-300 mb-4 text-sm">Pro 版 ¥99/月，无限次数 + 差评分析 + 好评邀约</p>
           <a href="/#pricing">
             <Button variant="primary">升级 Pro · ¥99/月</Button>
           </a>
@@ -200,11 +200,11 @@ export default function ReviewsPage() {
       {!result && !generating && !reviewContent && (
         <div className="text-center py-10 bg-gradient-to-b from-blue-50 to-white rounded-2xl border border-blue-100">
           <div className="text-5xl mb-4">👋</div>
-          <p className="text-xl font-bold text-gray-800 mb-2">欢迎使用口碑助手</p>
-          <p className="text-gray-500 mb-6 max-w-md mx-auto">
+          <p className="text-xl font-bold text-white mb-2">欢迎使用口碑助手</p>
+          <p className="text-neutral-400 mb-6 max-w-md mx-auto">
             第一步：从美团、大众点评、携程复制一条差评/好评，粘贴到上面的输入框，点击生成。
           </p>
-          <div className="flex items-center justify-center gap-8 text-sm text-gray-400">
+          <div className="flex items-center justify-center gap-8 text-sm text-neutral-500">
             <div className="text-center">
               <div className="text-2xl mb-1">1️⃣</div>
               <p>复制差评</p>

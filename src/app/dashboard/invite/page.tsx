@@ -53,9 +53,9 @@ export default function InvitePage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+      <div className="bg-neutral-900 rounded-2xl border border-neutral-800 p-6 shadow-sm">
         <h2 className="text-lg font-bold mb-1">生成邀评文案</h2>
-        <p className="text-sm text-gray-500 mb-6">
+        <p className="text-sm text-neutral-400 mb-6">
           给满意的客人发条微信或当面说一句，请他们去平台写个好评。AI 帮你写得不那么像广告。
         </p>
 
@@ -64,29 +64,29 @@ export default function InvitePage() {
           {SCENES.map((s) => (
             <button key={s.key} onClick={() => setScene(s.key)}
               className={`text-left p-3 rounded-xl border text-sm transition-all ${
-                scene === s.key ? "border-blue-500 bg-blue-50" : "border-gray-200"
+                scene === s.key ? "border-blue-500 bg-blue-500/10" : "border-neutral-800"
               }`}>
               <div className="flex items-center gap-2">
                 <span className="text-xl">{s.icon}</span>
                 <span className="font-medium">{s.label}</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1 ml-8">{s.desc}</p>
+              <p className="text-xs text-neutral-400 mt-1 ml-8">{s.desc}</p>
             </button>
           ))}
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
-            <label className="text-sm text-gray-500 mb-1 block">门店名称（可选）</label>
+            <label className="text-sm text-neutral-400 mb-1 block">门店名称（可选）</label>
             <Input placeholder="如：老王火锅（望京店）" value={storeName} onChange={(e) => setStoreName(e.target.value)} />
           </div>
           <div>
-            <label className="text-sm text-gray-500 mb-1 block">发布平台</label>
+            <label className="text-sm text-neutral-400 mb-1 block">发布平台</label>
             <div className="flex gap-2 flex-wrap">
               {CHANNELS.map((c) => (
                 <button key={c.key} onClick={() => setPlatform(c.key)}
                   className={`px-3 py-1.5 rounded-lg border text-xs transition-all ${
-                    platform === c.key ? "border-blue-500 bg-blue-50 text-blue-700" : "border-gray-200 text-gray-600"
+                    platform === c.key ? "border-blue-500 bg-blue-500/10 text-blue-700" : "border-neutral-800 text-neutral-300"
                   }`}>
                   {c.label}
                 </button>
@@ -100,14 +100,14 @@ export default function InvitePage() {
         </Button>
       </div>
 
-      {error && <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">{error}</div>}
+      {error && <div className="p-4 rounded-xl bg-red-500/10 border border-red-200 text-red-700 text-sm">{error}</div>}
 
       {texts.length > 0 && (
         <Card>
           <CardHeader><CardTitle>邀评文案</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             {texts.map((t, i) => (
-              <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50">
+              <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-neutral-900">
                 <span className="flex-shrink-0 w-7 h-7 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">{i + 1}</span>
                 <p className="flex-1 text-sm leading-relaxed whitespace-pre-wrap">{t}</p>
                 <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(t); setCopiedIdx(i); setTimeout(() => setCopiedIdx(null), 2000); }}>
@@ -116,7 +116,7 @@ export default function InvitePage() {
               </div>
             ))}
             {tips && (
-              <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 text-sm text-amber-800">
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 text-sm text-amber-800">
                 <span>💡</span><span>{tips}</span>
               </div>
             )}
@@ -125,7 +125,7 @@ export default function InvitePage() {
       )}
 
       {!texts.length && !loading && (
-        <div className="text-center py-8 text-gray-400">
+        <div className="text-center py-8 text-neutral-500">
           <p className="text-lg mb-2">👆 选个场景，生成邀评文案</p>
           <p className="text-sm">文案适合复制后通过微信、企微发给客人</p>
         </div>

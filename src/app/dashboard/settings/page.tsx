@@ -164,12 +164,12 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {stores.length === 0 ? (
-            <p className="text-center py-6 text-gray-400">还没有店铺，点击上方添加</p>
+            <p className="text-center py-6 text-neutral-500">还没有店铺，点击上方添加</p>
           ) : (
             stores.map((store) => (
               <div
                 key={store.id}
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-800"
+                className="flex items-center justify-between p-4 rounded-lg border border-neutral-800 dark:border-gray-800"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
@@ -182,7 +182,7 @@ export default function SettingsPage() {
                         {store.status === "active" ? "已连接" : store.status}
                       </Badge>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-xs text-neutral-400 mt-1">
                       {store.platform} · {store.review_count || 0} 条评论
                     </div>
                   </div>
@@ -201,7 +201,7 @@ export default function SettingsPage() {
 
           {/* Add store form */}
           {adding && (
-            <div className="mt-4 p-4 rounded-lg border-2 border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/10">
+            <div className="mt-4 p-4 rounded-lg border-2 border-blue-200 dark:border-blue-800 bg-blue-500/10/50 dark:bg-blue-900/10">
               <div className="space-y-3">
                 <div>
                   <Label>平台</Label>
@@ -212,8 +212,8 @@ export default function SettingsPage() {
                         onClick={() => setNewStorePlatform(p.name)}
                         className={`flex items-center gap-2 p-2 rounded-lg border text-sm transition-all ${
                           newStorePlatform === p.name
-                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30"
-                            : "border-gray-200 dark:border-gray-700"
+                            ? "border-blue-500 bg-blue-500/10 dark:bg-blue-900/30"
+                            : "border-neutral-800 dark:border-gray-700"
                         }`}
                       >
                         <span>{p.icon}</span>
@@ -269,8 +269,8 @@ export default function SettingsPage() {
                   onClick={() => handleToneChange(tone.value)}
                   className={`flex items-center justify-center gap-2 p-3 rounded-lg border text-sm transition-all ${
                     defaultTone === tone.value
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700"
-                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
+                      ? "border-blue-500 bg-blue-500/10 dark:bg-blue-900/30 text-blue-700"
+                      : "border-neutral-800 dark:border-gray-700 hover:border-gray-300"
                   }`}
                 >
                   {defaultTone === tone.value && <Check className="w-4 h-4" />}
@@ -298,11 +298,11 @@ export default function SettingsPage() {
                 return (
                   <div
                     key={rule.key}
-                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50"
+                    className="flex items-center justify-between p-3 rounded-lg bg-neutral-900 dark:bg-gray-800/50"
                   >
                     <div>
                       <span className="text-sm font-medium">{rule.label}</span>
-                      <p className="text-xs text-gray-500 mt-0.5">{rule.desc}</p>
+                      <p className="text-xs text-neutral-400 mt-0.5">{rule.desc}</p>
                     </div>
                     <button
                       role="switch"
@@ -313,7 +313,7 @@ export default function SettingsPage() {
                       }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        className={`inline-block h-4 w-4 transform rounded-full bg-neutral-900 transition-transform ${
                           checked ? "translate-x-4" : "translate-x-[2px]"
                         }`}
                       />

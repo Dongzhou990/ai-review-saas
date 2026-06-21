@@ -53,7 +53,7 @@ export default function AnalysisPage() {
       <div className="max-w-3xl mx-auto text-center py-16">
         <BarChart3 className="w-16 h-16 mx-auto text-gray-300 mb-4" />
         <h2 className="text-xl font-bold mb-2">暂无评论数据</h2>
-        <p className="text-gray-500 mb-4">导入评论后即可查看差评分析，AI 会帮你找出门店问题所在。</p>
+        <p className="text-neutral-400 mb-4">导入评论后即可查看差评分析，AI 会帮你找出门店问题所在。</p>
         <a href="/dashboard/reviews">
           <Button variant="primary">去导入评论</Button>
         </a>
@@ -67,19 +67,19 @@ export default function AnalysisPage() {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <Card><CardContent className="p-4 text-center"><p className="text-3xl font-bold">{data.totalReviews}</p><p className="text-sm text-gray-500">总评论数</p></CardContent></Card>
-        <Card><CardContent className="p-4 text-center"><p className="text-3xl font-bold text-red-600">{data.badReviewCount}</p><p className="text-sm text-gray-500">差评数</p></CardContent></Card>
-        <Card><CardContent className="p-4 text-center"><p className="text-3xl font-bold text-amber-600">{data.badReviewRate}%</p><p className="text-sm text-gray-500">差评率</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-3xl font-bold">{data.totalReviews}</p><p className="text-sm text-neutral-400">总评论数</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-3xl font-bold text-red-600">{data.badReviewCount}</p><p className="text-sm text-neutral-400">差评数</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-3xl font-bold text-amber-600">{data.badReviewRate}%</p><p className="text-sm text-neutral-400">差评率</p></CardContent></Card>
       </div>
 
       {/* Summary */}
       {data.summary && (
-        <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20">
+        <Card className="border-blue-200 dark:border-blue-800 bg-blue-500/10/30 dark:bg-blue-950/20">
           <CardContent className="p-4 flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
             <div>
               <p className="font-medium text-sm mb-1">AI 概况分析</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{data.summary}</p>
+              <p className="text-sm text-neutral-300 dark:text-neutral-500">{data.summary}</p>
             </div>
           </CardContent>
         </Card>
@@ -94,7 +94,7 @@ export default function AnalysisPage() {
               <div key={cat.name}>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-medium">{cat.name}</span>
-                  <span className="text-sm text-gray-500">{cat.count} 条 ({cat.percentage}%)</span>
+                  <span className="text-sm text-neutral-400">{cat.count} 条 ({cat.percentage}%)</span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
                   <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(cat.count / maxCount) * 100}%`, backgroundColor: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }} />
@@ -111,9 +111,9 @@ export default function AnalysisPage() {
           <CardHeader><CardTitle className="flex items-center gap-2"><Lightbulb className="w-5 h-5 text-yellow-500" />改进建议</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             {data.suggestions.map((s: string, i: number) => (
-              <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+              <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-neutral-900 dark:bg-gray-800/50">
                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">{i + 1}</span>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{s}</p>
+                <p className="text-sm text-neutral-200 dark:text-gray-300">{s}</p>
               </div>
             ))}
           </CardContent>
@@ -124,7 +124,7 @@ export default function AnalysisPage() {
       {data.badReviewCount > 0 && (
         <div className="text-center p-6 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-800">
           <p className="font-bold text-lg mb-2">想让 AI 24 小时帮你盯口碑？</p>
-          <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">Pro 版 ¥99/月，无限回复 + 差评分析 + 好评邀约</p>
+          <p className="text-neutral-300 dark:text-neutral-500 mb-4 text-sm">Pro 版 ¥99/月，无限回复 + 差评分析 + 好评邀约</p>
           <a href="/#pricing">
             <Button variant="primary">升级 Pro</Button>
           </a>

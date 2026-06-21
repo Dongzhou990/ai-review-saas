@@ -60,7 +60,7 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
-      <header className="sticky top-0 z-50 border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-lg">
+      <header className="sticky top-0 z-50 border-b border-neutral-800/50 bg-black/80 backdrop-blur-lg">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
@@ -97,7 +97,7 @@ export default function LandingPage() {
 
       {/* ============ HERO ============ */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-950 to-indigo-950" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-cyan-400/20 to-blue-500/10 rounded-full blur-3xl" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
           <div className="text-center max-w-3xl mx-auto">
@@ -136,7 +136,7 @@ export default function LandingPage() {
       </section>
 
       {/* ============ USE CASES ============ */}
-      <section className="py-16 bg-slate-900">
+      <section className="py-16 bg-black">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-6 text-center">
             {[
@@ -144,7 +144,7 @@ export default function LandingPage() {
               { icon: "🏨", title: "酒店/民宿", desc: "一条差评丢一单生意。及时回复+分析问题，减少差评对入住率的影响。" },
               { icon: "💆", title: "美容美发/美甲", desc: "新客都看评价选店。AI帮你回好评邀约，差评及时处理，好评越来越多。" },
             ].map((item) => (
-              <div key={item.title} className="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+              <div key={item.title} className="p-6 rounded-2xl bg-neutral-900/50 border border-neutral-800">
                 <span className="text-4xl block mb-3">{item.icon}</span>
                 <h3 className="text-lg font-bold mb-2">{item.title}</h3>
                 <p className="text-sm text-slate-300 leading-relaxed">{item.desc}</p>
@@ -155,7 +155,7 @@ export default function LandingPage() {
       </section>
 
       {/* ============ FEATURES ============ */}
-      <section id="features" className="py-20 bg-slate-900">
+      <section id="features" className="py-20 bg-black">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-bold text-white">一个工具，帮你管好门店口碑</h2>
@@ -201,7 +201,7 @@ export default function LandingPage() {
                 color: "text-sky-600",
               },
             ].map((feature) => (
-              <Card key={feature.title} className="hover:shadow-md transition-shadow border-slate-700 bg-slate-800/50">
+              <Card key={feature.title} className="hover:shadow-md transition-shadow border-neutral-800 bg-neutral-900/50">
                 <CardContent className="p-6">
                   <div className={`w-11 h-11 rounded-xl bg-slate-700 flex items-center justify-center mb-4 ${feature.color}`}>
                     {feature.icon}
@@ -216,7 +216,7 @@ export default function LandingPage() {
       </section>
 
       {/* ============ HOW IT WORKS ============ */}
-      <section className="py-20 bg-slate-900">
+      <section className="py-20 bg-black">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white">使用步骤，就这么简单</h2>
           <p className="text-lg text-slate-300 mb-12">从注册到用上，不超过 3 分钟</p>
@@ -241,7 +241,7 @@ export default function LandingPage() {
       </section>
 
       {/* ============ BROWSER PLUGIN ============ */}
-      <section className="py-20 bg-slate-900">
+      <section className="py-20 bg-black">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-sm mb-4">
@@ -256,17 +256,17 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-10">
-            <div className="p-6 rounded-2xl bg-slate-800/50 border border-slate-700 text-center">
+            <div className="p-6 rounded-2xl bg-neutral-900/50 border border-neutral-800 text-center">
               <div className="text-3xl mb-3">1️⃣</div>
               <h3 className="text-white font-bold mb-2">安装插件</h3>
               <p className="text-sm text-slate-400">Chrome 应用商店搜"口碑助手"，或加载本地扩展包，30秒搞定</p>
             </div>
-            <div className="p-6 rounded-2xl bg-slate-800/50 border border-slate-700 text-center">
+            <div className="p-6 rounded-2xl bg-neutral-900/50 border border-neutral-800 text-center">
               <div className="text-3xl mb-3">2️⃣</div>
               <h3 className="text-white font-bold mb-2">打开商家后台</h3>
               <p className="text-sm text-slate-400">进入美团/大众点评/携程的评价管理页面，保持日常习惯</p>
             </div>
-            <div className="p-6 rounded-2xl bg-slate-800/50 border border-slate-700 text-center">
+            <div className="p-6 rounded-2xl bg-neutral-900/50 border border-neutral-800 text-center">
               <div className="text-3xl mb-3">3️⃣</div>
               <h3 className="text-white font-bold mb-2">一键 AI 回复</h3>
               <p className="text-sm text-slate-400">每条评价旁边出现 🤖 AI回复 按钮，点一下自动填入</p>
@@ -274,11 +274,11 @@ export default function LandingPage() {
           </div>
 
           {/* 支持平台 */}
-          <div className="rounded-2xl bg-slate-800/30 border border-slate-700 p-6">
+          <div className="rounded-2xl bg-neutral-900/30 border border-neutral-800 p-6">
             <p className="text-center text-slate-400 text-sm mb-4">插件支持的平台</p>
             <div className="flex flex-wrap justify-center gap-3">
               {["🍜 美团商家中心", "📝 大众点评商家后台", "🏨 携程ebooking", "✈️ 飞猪", "📕 小红书"].map(p => (
-                <span key={p} className="px-4 py-2 rounded-full bg-slate-800 text-slate-300 text-sm border border-slate-700">
+                <span key={p} className="px-4 py-2 rounded-full bg-neutral-900 text-slate-300 text-sm border border-neutral-800">
                   {p}
                 </span>
               ))}
@@ -293,7 +293,7 @@ export default function LandingPage() {
               <a href="/plugin" className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors">
                 📖 查看插件详情
               </a>
-              <a href="/dashboard/reviews" className="px-6 py-2.5 rounded-xl border border-slate-600 text-slate-300 text-sm font-medium hover:bg-slate-800 transition-colors">
+              <a href="/dashboard/reviews" className="px-6 py-2.5 rounded-xl border border-slate-600 text-slate-300 text-sm font-medium hover:bg-neutral-900 transition-colors">
                 去网页版直接试 →
               </a>
             </div>
@@ -302,7 +302,7 @@ export default function LandingPage() {
       </section>
 
       {/* ============ PRICING ============ */}
-      <section id="pricing" className="py-20 bg-slate-900">
+      <section id="pricing" className="py-20 bg-black">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-white">先免费试用，满意再付费</h2>
@@ -393,7 +393,7 @@ export default function LandingPage() {
             <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-6 mb-3 text-center border border-green-200">
               <img src="/qrcode.jpg" alt="微信收款码" className="w-40 h-40 mx-auto rounded-lg shadow-md object-cover" />
               <p className="text-sm text-slate-300 mt-3">微信扫码支付 <strong>¥99</strong></p>
-              <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full text-sm font-mono shadow-sm">
+              <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-black rounded-full text-sm font-mono shadow-sm">
                 <span>Dongzhou526</span>
                 <button
                   onClick={() => { navigator.clipboard.writeText("Dongzhou526"); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
@@ -458,13 +458,13 @@ export default function LandingPage() {
 
             <div className="flex gap-2 mt-3">
               <a href="/register" className="flex-1">
-                <button className="w-full py-2 rounded-lg text-sm border border-gray-300 text-slate-300 hover:bg-gray-50 transition-colors">
+                <button className="w-full py-2 rounded-lg text-sm border border-gray-300 text-slate-300 hover:bg-black transition-colors">
                   先免费试用
                 </button>
               </a>
               <button
                 onClick={() => setShowWechat(false)}
-                className="flex-1 py-2 rounded-lg text-sm border border-gray-300 text-slate-300 hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2 rounded-lg text-sm border border-gray-300 text-slate-300 hover:bg-black transition-colors"
               >
                 稍后再说
               </button>
@@ -473,7 +473,7 @@ export default function LandingPage() {
         </div>
       )}
 {/* Footer */}
-      <footer className="border-t border-slate-800 py-12 bg-slate-900">
+      <footer className="border-t border-neutral-800 py-12 bg-black">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-300">
           <p>© 2026 口碑助手 · AI门店口碑运营助手</p>
           <div className="flex items-center justify-center gap-4 mt-2">

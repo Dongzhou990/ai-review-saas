@@ -43,7 +43,7 @@ export default function DashboardPage() {
       {/* Welcome / Status */}
       <div>
         <h1 className="text-2xl font-bold mb-1">门店口碑总览</h1>
-        <p className="text-gray-500 text-sm">
+        <p className="text-neutral-400 text-sm">
           {stats.hasData
             ? "以下是你门店近期的口碑情况"
             : "还没有评论数据，去处理一条差评试试"}
@@ -55,10 +55,10 @@ export default function DashboardPage() {
         <Card>
           <CardContent className="p-4 text-center">
             <div className="flex items-center justify-center gap-2 mb-1">
-              <MessageSquare className="w-4 h-4 text-gray-400" />
+              <MessageSquare className="w-4 h-4 text-neutral-500" />
             </div>
             <p className="text-3xl font-bold">{stats.totalReviews}</p>
-            <p className="text-xs text-gray-500">总评论数</p>
+            <p className="text-xs text-neutral-400">总评论数</p>
           </CardContent>
         </Card>
         <Card>
@@ -67,7 +67,7 @@ export default function DashboardPage() {
               <ThumbsUp className="w-4 h-4 text-green-500" />
             </div>
             <p className="text-3xl font-bold text-green-600">{stats.goodReviews}</p>
-            <p className="text-xs text-gray-500">好评数</p>
+            <p className="text-xs text-neutral-400">好评数</p>
           </CardContent>
         </Card>
         <Card>
@@ -76,13 +76,13 @@ export default function DashboardPage() {
               <AlertTriangle className="w-4 h-4 text-red-500" />
             </div>
             <p className="text-3xl font-bold text-red-600">{stats.pendingBad}</p>
-            <p className="text-xs text-gray-500">待处理的差评</p>
+            <p className="text-xs text-neutral-400">待处理的差评</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-3xl font-bold text-blue-600">{stats.remaining}</p>
-            <p className="text-xs text-gray-500">{stats.isPro ? "无限（Pro）" : "今日剩余回复"}</p>
+            <p className="text-xs text-neutral-400">{stats.isPro ? "无限（Pro）" : "今日剩余回复"}</p>
           </CardContent>
         </Card>
       </div>
@@ -96,7 +96,7 @@ export default function DashboardPage() {
                 <MessageSquare className="w-5 h-5 text-blue-600" />
                 <span className="font-semibold">差评处理</span>
               </div>
-              <p className="text-sm text-gray-500">粘贴差评 → AI 生成回复 → 复制发布</p>
+              <p className="text-sm text-neutral-400">粘贴差评 → AI 生成回复 → 复制发布</p>
             </CardContent>
           </Card>
         </Link>
@@ -107,7 +107,7 @@ export default function DashboardPage() {
                 <TrendingUp className="w-5 h-5 text-purple-600" />
                 <span className="font-semibold">差评分析</span>
               </div>
-              <p className="text-sm text-gray-500">看看客人在抱怨什么，该改什么</p>
+              <p className="text-sm text-neutral-400">看看客人在抱怨什么，该改什么</p>
             </CardContent>
           </Card>
         </Link>
@@ -118,7 +118,7 @@ export default function DashboardPage() {
                 <ThumbsUp className="w-5 h-5 text-green-600" />
                 <span className="font-semibold">好评邀约</span>
               </div>
-              <p className="text-sm text-gray-500">生成发给客人的邀评文案</p>
+              <p className="text-sm text-neutral-400">生成发给客人的邀评文案</p>
             </CardContent>
           </Card>
         </Link>
@@ -129,7 +129,7 @@ export default function DashboardPage() {
                 <TrendingUp className="w-5 h-5 text-amber-600" />
                 <span className="font-semibold">每周周报</span>
               </div>
-              <p className="text-sm text-gray-500">本周口碑回顾 + 改进建议</p>
+              <p className="text-sm text-neutral-400">本周口碑回顾 + 改进建议</p>
             </CardContent>
           </Card>
         </Link>
@@ -141,7 +141,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="font-bold text-lg">📊 每周口碑周报</p>
-              <p className="text-sm text-gray-600 mt-1">AI 自动分析本周评论，告诉你问题在哪、该改什么</p>
+              <p className="text-sm text-neutral-300 mt-1">AI 自动分析本周评论，告诉你问题在哪、该改什么</p>
             </div>
             <a href="/dashboard/weekly">
               <button className="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 transition-colors">
@@ -156,7 +156,7 @@ export default function DashboardPage() {
       {!stats.isPro && (
         <div className="text-center p-6 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
           <p className="font-bold text-lg mb-2">每天 3 条不够用？</p>
-          <p className="text-gray-600 mb-4 text-sm">Pro 版 ¥99/月，无限次数 + 差评分析 + 好评邀约 + 每周周报</p>
+          <p className="text-neutral-300 mb-4 text-sm">Pro 版 ¥99/月，无限次数 + 差评分析 + 好评邀约 + 每周周报</p>
           <a href="/#pricing">
             <Button variant="primary">升级 Pro · ¥99/月</Button>
           </a>

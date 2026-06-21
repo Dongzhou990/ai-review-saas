@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function PluginPage() {
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
+    <div className="min-h-screen bg-black text-white">
       <div className="max-w-4xl mx-auto px-4 py-16">
         {/* Hero */}
         <div className="text-center mb-16">
@@ -26,7 +26,7 @@ export default function PluginPage() {
 
         {/* How it works */}
         <div className="grid md:grid-cols-3 gap-6 mb-16">
-          <div className="p-8 rounded-2xl bg-slate-800/50 border border-slate-700 text-center">
+          <div className="p-8 rounded-2xl bg-neutral-900/50 border border-neutral-800 text-center">
             <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mx-auto mb-4">
               <span className="text-3xl">📦</span>
             </div>
@@ -35,7 +35,7 @@ export default function PluginPage() {
               下载口碑助手 Chrome 扩展包，30 秒加载到浏览器。无需注册账号即可安装。
             </p>
           </div>
-          <div className="p-8 rounded-2xl bg-slate-800/50 border border-slate-700 text-center">
+          <div className="p-8 rounded-2xl bg-neutral-900/50 border border-neutral-800 text-center">
             <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mx-auto mb-4">
               <span className="text-3xl">🌐</span>
             </div>
@@ -44,7 +44,7 @@ export default function PluginPage() {
               像往常一样进入美团、大众点评、携程的评价管理页面。插件会自动识别。
             </p>
           </div>
-          <div className="p-8 rounded-2xl bg-slate-800/50 border border-slate-700 text-center">
+          <div className="p-8 rounded-2xl bg-neutral-900/50 border border-neutral-800 text-center">
             <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mx-auto mb-4">
               <span className="text-3xl">🤖</span>
             </div>
@@ -67,7 +67,7 @@ export default function PluginPage() {
               { name: "去哪儿商家", icon: "🎒", url: "ebooking.qunar.com", desc: "酒店民宿商家后台" },
               { name: "小红书专业号", icon: "📕", url: "creator.xiaohongshu.com", desc: "内容创作者商家管理" },
             ].map(p => (
-              <div key={p.name} className="p-5 rounded-xl bg-slate-800/50 border border-slate-700">
+              <div key={p.name} className="p-5 rounded-xl bg-neutral-900/50 border border-neutral-800">
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-2xl">{p.icon}</span>
                   <span className="font-bold">{p.name}</span>
@@ -82,10 +82,10 @@ export default function PluginPage() {
         {/* Feature comparison */}
         <div className="mb-16">
           <h2 className="text-2xl font-bold text-center mb-8">插件版 vs 网页版</h2>
-          <div className="overflow-hidden rounded-2xl border border-slate-700">
+          <div className="overflow-hidden rounded-2xl border border-neutral-800">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-slate-800">
+                <tr className="bg-neutral-900">
                   <th className="p-4 text-left text-slate-400 w-1/3">对比</th>
                   <th className="p-4 text-center text-indigo-400">🧩 插件版</th>
                   <th className="p-4 text-center text-slate-400">🌐 网页版</th>
@@ -100,7 +100,7 @@ export default function PluginPage() {
                   ["安装", "需装Chrome扩展", "打开浏览器即可"],
                   ["适用场景", "日常批量回复", "偶尔处理差评"],
                 ].map(([label, plugin, web]) => (
-                  <tr key={label} className="hover:bg-slate-800/50">
+                  <tr key={label} className="hover:bg-neutral-900/50">
                     <td className="p-4 font-medium text-slate-300">{label}</td>
                     <td className="p-4 text-center text-indigo-300">{plugin}</td>
                     <td className="p-4 text-center text-slate-400">{web}</td>
@@ -153,7 +153,7 @@ export default function PluginPage() {
             <Link href="/register" className="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-medium hover:opacity-90 transition-opacity">
               免费注册
             </Link>
-            <Link href="/#plugin" className="px-8 py-3 rounded-xl border border-slate-600 text-slate-300 font-medium hover:bg-slate-800 transition-colors">
+            <Link href="/#plugin" className="px-8 py-3 rounded-xl border border-slate-600 text-slate-300 font-medium hover:bg-neutral-900 transition-colors">
               返回首页
             </Link>
           </div>
