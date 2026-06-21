@@ -1,11 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowRight, AlertTriangle, ThumbsUp, MessageSquare, TrendingUp } from "lucide-react";
+import { Loader2, MessageSquare, ThumbsUp, AlertTriangle, TrendingUp, BarChart3, Sparkles, ClipboardList, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+
+const STAT_CARDS = [
+  { key: "totalReviews", label: "总评论数", icon: MessageSquare, color: "text-cyan-400", bg: "from-cyan-500/10 to-cyan-500/5", border: "border-cyan-500/20" },
+  { key: "goodReviews", label: "好评数", icon: ThumbsUp, color: "text-emerald-400", bg: "from-emerald-500/10 to-emerald-500/5", border: "border-emerald-500/20" },
+  { key: "pendingBad", label: "待处理差评", icon: AlertTriangle, color: "text-rose-400", bg: "from-rose-500/10 to-rose-500/5", border: "border-rose-500/20" },
+  { key: "remaining", label: "今日剩余", icon: Zap, color: "text-violet-400", bg: "from-violet-500/10 to-violet-500/5", border: "border-violet-500/20" },
+];
+
+const QUICK_ACTIONS = [
+  { href: "/dashboard/reviews", label: "差评处理", desc: "粘贴差评 → AI 秒回", icon: MessageSquare, color: "bg-cyan-500/10 text-cyan-400", border: "border-cyan-500/20 hover:border-cyan-500/40" },
+  { href: "/dashboard/analysis", label: "差评分析", desc: "看懂客人在抱怨什么", icon: BarChart3, color: "bg-violet-500/10 text-violet-400", border: "border-violet-500/20 hover:border-violet-500/40" },
+  { href: "/dashboard/invite", label: "好评邀约", desc: "生成微信邀评文案", icon: ThumbsUp, color: "bg-emerald-500/10 text-emerald-400", border: "border-emerald-500/20 hover:border-emerald-500/40" },
+  { href: "/dashboard/weekly", label: "每周周报", desc: "口碑回顾 + 改进建议", icon: ClipboardList, color: "bg-amber-500/10 text-amber-400", border: "border-amber-500/20 hover:border-amber-500/40" },
+];
 
 export default function DashboardPage() {
   const supabase = createClient();
@@ -20,10 +33,8 @@ export default function DashboardPage() {
       const { count: totalReviews } = await supabase.from("reviews").select("*", { count: "exact", head: true }).eq("user_id", user.id);
       const { count: pendingBad } = await supabase.from("reviews").select("*", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "pending").lte("rating", 2);
       const { count: goodReviews } = await supabase.from("reviews").select("*", { count: "exact", head: true }).eq("user_id", user.id).gte("rating", 4);
-
       const today = new Date(); today.setHours(0, 0, 0, 0);
       const { count: todayReplies } = await supabase.from("replies").select("*", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", today.toISOString());
-
       const { data: sub } = await supabase.from("subscriptions").select("plan, daily_reply_limit").eq("user_id", user.id).single();
       const remaining = sub ? Math.max(0, (sub.daily_reply_limit || (sub.plan === "pro" ? 999 : 3)) - (todayReplies || 0)) : 0;
       const isPro = sub?.plan === "pro";
@@ -34,132 +45,93 @@ export default function DashboardPage() {
   }, [supabase]);
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
   }
 
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
+  const statValues: Record<string, number> = {
+    totalReviews: stats.totalReviews,
+    goodReviews: stats.goodReviews,
+    pendingBad: stats.pendingBad,
+    remaining: stats.isPro ? 999 : stats.remaining,
+  };
 
-      {/* Welcome / Status */}
-      <div>
-        <h1 className="text-2xl font-bold mb-1">门店口碑总览</h1>
-        <p className="text-neutral-400 text-sm">
-          {stats.hasData
-            ? "以下是你门店近期的口碑情况"
-            : "还没有评论数据，去处理一条差评试试"}
-        </p>
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">门店口碑总览</h1>
+          <p className="text-neutral-400 text-sm mt-1">
+            {stats.hasData ? "门店近期口碑一目了然" : "还没有数据，先去处理一条差评吧"}
+          </p>
+        </div>
+        {stats.isPro && (
+          <span className="px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-400 text-xs font-medium border border-amber-500/20">
+            ⚡ Pro
+          </span>
+        )}
       </div>
 
-      {/* Key Metrics */}
+      {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <MessageSquare className="w-4 h-4 text-neutral-500" />
+        {STAT_CARDS.map((card) => (
+          <div key={card.key} className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${card.bg} border ${card.border} p-5`}>
+            <div className="absolute top-0 right-0 w-20 h-20 rounded-bl-full opacity-10" style={{ background: `radial-gradient(circle, currentColor, transparent)` }} />
+            <div className="relative">
+              <card.icon className={`w-5 h-5 ${card.color} mb-3`} />
+              <p className="text-3xl font-bold text-white">{statValues[card.key]}</p>
+              <p className="text-xs text-neutral-400 mt-1">{card.label}</p>
             </div>
-            <p className="text-3xl font-bold">{stats.totalReviews}</p>
-            <p className="text-xs text-neutral-400">总评论数</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <ThumbsUp className="w-4 h-4 text-green-500" />
-            </div>
-            <p className="text-3xl font-bold text-green-600">{stats.goodReviews}</p>
-            <p className="text-xs text-neutral-400">好评数</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <AlertTriangle className="w-4 h-4 text-red-500" />
-            </div>
-            <p className="text-3xl font-bold text-red-600">{stats.pendingBad}</p>
-            <p className="text-xs text-neutral-400">待处理的差评</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-blue-600">{stats.remaining}</p>
-            <p className="text-xs text-neutral-400">{stats.isPro ? "无限（Pro）" : "今日剩余回复"}</p>
-          </CardContent>
-        </Card>
+          </div>
+        ))}
       </div>
 
       {/* Quick Actions */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Link href="/dashboard/reviews">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <MessageSquare className="w-5 h-5 text-blue-600" />
-                <span className="font-semibold">差评处理</span>
+      <div>
+        <h2 className="text-sm font-medium text-neutral-500 mb-4 uppercase tracking-wider">快捷操作</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {QUICK_ACTIONS.map((action) => (
+            <Link key={action.href} href={action.href}>
+              <div className={`rounded-2xl border ${action.border} p-5 transition-all duration-200 cursor-pointer bg-neutral-900/50`}>
+                <div className={`w-10 h-10 rounded-xl ${action.color} flex items-center justify-center mb-3`}>
+                  <action.icon className="w-5 h-5" />
+                </div>
+                <p className="font-semibold text-white text-sm">{action.label}</p>
+                <p className="text-xs text-neutral-500 mt-1">{action.desc}</p>
               </div>
-              <p className="text-sm text-neutral-400">粘贴差评 → AI 生成回复 → 复制发布</p>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/dashboard/analysis">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <TrendingUp className="w-5 h-5 text-purple-600" />
-                <span className="font-semibold">差评分析</span>
-              </div>
-              <p className="text-sm text-neutral-400">看看客人在抱怨什么，该改什么</p>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/dashboard/invite">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <ThumbsUp className="w-5 h-5 text-green-600" />
-                <span className="font-semibold">好评邀约</span>
-              </div>
-              <p className="text-sm text-neutral-400">生成发给客人的邀评文案</p>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/dashboard/weekly">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <TrendingUp className="w-5 h-5 text-amber-600" />
-                <span className="font-semibold">每周周报</span>
-              </div>
-              <p className="text-sm text-neutral-400">本周口碑回顾 + 改进建议</p>
-            </CardContent>
-          </Card>
-        </Link>
+            </Link>
+          ))}
+        </div>
       </div>
 
-      {/* Weekly report teaser */}
+      {/* Weekly Report Teaser */}
       {stats.hasData && (
-        <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200">
+        <div className="rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-amber-500/10 border border-amber-500/20 p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="font-bold text-lg">📊 每周口碑周报</p>
-              <p className="text-sm text-neutral-300 mt-1">AI 自动分析本周评论，告诉你问题在哪、该改什么</p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center text-2xl">📊</div>
+              <div>
+                <p className="font-bold text-white">每周口碑周报</p>
+                <p className="text-sm text-neutral-400 mt-0.5">AI 自动分析本周评论，告诉你问题在哪、该改什么</p>
+              </div>
             </div>
-            <a href="/dashboard/weekly">
-              <button className="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 transition-colors">
-                查看周报 →
-              </button>
-            </a>
+            <Link href="/dashboard/weekly">
+              <Button variant="primary" size="sm">查看周报 →</Button>
+            </Link>
           </div>
         </div>
       )}
 
-      {/* Upgrade CTA */}
+      {/* Upgrade */}
       {!stats.isPro && (
-        <div className="text-center p-6 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
-          <p className="font-bold text-lg mb-2">每天 3 条不够用？</p>
-          <p className="text-neutral-300 mb-4 text-sm">Pro 版 ¥99/月，无限次数 + 差评分析 + 好评邀约 + 每周周报</p>
-          <a href="/#pricing">
-            <Button variant="primary">升级 Pro · ¥99/月</Button>
-          </a>
+        <div className="rounded-2xl bg-gradient-to-br from-indigo-500/10 via-violet-500/10 to-purple-500/10 border border-indigo-500/20 p-8 text-center">
+          <Sparkles className="w-8 h-8 text-indigo-400 mx-auto mb-3" />
+          <p className="text-xl font-bold text-white mb-2">每天 3 条不够用？</p>
+          <p className="text-neutral-400 mb-6 text-sm">Pro 版 ¥99/月，无限次数 + 差评分析 + 好评邀约 + 每周周报</p>
+          <Link href="/#pricing">
+            <Button variant="primary" size="lg">升级 Pro · ¥99/月</Button>
+          </Link>
         </div>
       )}
     </div>
