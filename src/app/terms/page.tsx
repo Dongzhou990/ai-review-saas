@@ -1,6 +1,6 @@
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen bg-black">
       <div className="max-w-3xl mx-auto px-4 py-16">
         <h1 className="text-3xl font-bold mb-8">服务条款</h1>
         <p className="text-sm text-gray-500 mb-6">最后更新：2026 年 6 月</p>

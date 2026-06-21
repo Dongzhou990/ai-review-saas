@@ -46,7 +46,7 @@ export default function RootLayout({
       <head>
         <Script defer data-domain="reviewai.chat" src="https://plausible.io/js/script.js" strategy="afterInteractive" />
       </head>
-      <body className="min-h-full flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+      <body className="min-h-full flex flex-col bg-black text-white">
         {children}
       </body>
     </html>

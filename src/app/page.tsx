@@ -367,7 +367,7 @@ export default function LandingPage() {
             不收费、不绑卡。注册就能用，满意了再考虑升级。
           </p>
           <Link href="/register">
-            <Button variant="secondary" size="xl" className="bg-white text-indigo-700 hover:bg-indigo-50">
+            <Button variant="secondary" size="xl" className="bg-neutral-900 text-indigo-700 hover:bg-indigo-500/20">
               免费开始使用
               <ArrowRight className="w-5 h-5" />
             </Button>
@@ -381,10 +381,10 @@ export default function LandingPage() {
       {/* ============ WeChat Payment Modal ============ */}
       {showWechat && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowWechat(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold">升级 Pro 版 · ¥99/月</h2>
-              <button onClick={() => setShowWechat(false)} className="p-1 hover:bg-gray-100 rounded">
+              <button onClick={() => setShowWechat(false)} className="p-1 hover:bg-neutral-800 rounded">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -411,7 +411,7 @@ export default function LandingPage() {
                 type="text"
                 id="paymentNote"
                 placeholder="填你的手机号或店铺名"
-                className="w-full h-9 rounded-lg border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full h-9 rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -458,13 +458,13 @@ export default function LandingPage() {
 
             <div className="flex gap-2 mt-3">
               <a href="/register" className="flex-1">
-                <button className="w-full py-2 rounded-lg text-sm border border-gray-300 text-slate-300 hover:bg-black transition-colors">
+                <button className="w-full py-2 rounded-lg text-sm border border-neutral-700 text-slate-300 hover:bg-black transition-colors">
                   先免费试用
                 </button>
               </a>
               <button
                 onClick={() => setShowWechat(false)}
-                className="flex-1 py-2 rounded-lg text-sm border border-gray-300 text-slate-300 hover:bg-black transition-colors"
+                className="flex-1 py-2 rounded-lg text-sm border border-neutral-700 text-slate-300 hover:bg-black transition-colors"
               >
                 稍后再说
               </button>

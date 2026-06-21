@@ -23,7 +23,7 @@ const posts = [
 
 export default function BlogPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen bg-black">
       <div className="max-w-3xl mx-auto px-4 py-16 sm:py-24">
         <Link href="/" className="text-sm text-blue-600 hover:underline mb-6 inline-block">\u2190 \u8fd4\u56de\u9996\u9875</Link>
         <h1 className="text-4xl font-bold mb-4">\u535a\u5ba2</h1>

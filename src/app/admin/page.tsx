@@ -72,7 +72,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6">
+    <div className="min-h-screen bg-black p-6">
       <div className="max-w-4xl mx-auto space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">订阅管理</h1>

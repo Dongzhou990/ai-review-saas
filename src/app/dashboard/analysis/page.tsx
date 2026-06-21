@@ -96,7 +96,7 @@ export default function AnalysisPage() {
                   <span className="text-sm font-medium">{cat.name}</span>
                   <span className="text-sm text-neutral-400">{cat.count} 条 ({cat.percentage}%)</span>
                 </div>
-                <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-neutral-800 dark:bg-gray-800 overflow-hidden">
                   <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(cat.count / maxCount) * 100}%`, backgroundColor: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }} />
                 </div>
               </div>
