@@ -176,7 +176,7 @@ export default function ReviewsPage() {
               </Button>
             </div>
           </div>
-          <div className="p-4 bg-gray-50 rounded-xl text-base leading-relaxed whitespace-pre-wrap">
+          <div className="p-4 bg-gray-50 rounded-xl text-base leading-relaxed whitespace-pre-wrap text-gray-800">
             {result}
           </div>
           <p className="text-xs text-gray-400 mt-3">
