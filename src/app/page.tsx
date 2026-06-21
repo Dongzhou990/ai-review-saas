@@ -406,7 +406,7 @@ export default function LandingPage() {
 
             {/* Step 2: Payment note (optional) */}
             <div className="mb-3">
-              <label className="text-xs text-gray-500 mb-1 block">付款备注（可选，方便核对）</label>
+              <label className="text-xs text-slate-400 mb-1 block">付款备注（可选，方便核对）</label>
               <input
                 type="text"
                 id="paymentNote"
@@ -477,8 +477,8 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-300">
           <p>© 2026 口碑助手 · AI门店口碑运营助手</p>
           <div className="flex items-center justify-center gap-4 mt-2">
-            <Link href="/privacy" className="hover:text-gray-700">隐私政策</Link>
-            <Link href="/terms" className="hover:text-gray-700">服务条款</Link>
+            <Link href="/privacy" className="hover:text-slate-200">隐私政策</Link>
+            <Link href="/terms" className="hover:text-slate-200">服务条款</Link>
           </div>
         </div>
       </footer>

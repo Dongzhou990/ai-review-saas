@@ -91,7 +91,7 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -105,7 +105,7 @@ export default function RegisterPage() {
 
               
 
-              <p className="text-sm text-gray-500 text-center">
+              <p className="text-sm text-slate-400 text-center">
                 已有账号？{" "}
                 <Link href="/login" className="text-blue-600 hover:underline">
                   立即登录
