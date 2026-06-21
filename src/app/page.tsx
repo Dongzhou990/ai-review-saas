@@ -73,6 +73,9 @@ export default function LandingPage() {
               <a href="#pricing" className="hover:text-white transition-colors">
                 价格
               </a>
+              <a href="/plugin" className="hover:text-white transition-colors">
+                浏览器插件
+              </a>
               <a href="/blog" className="hover:text-white transition-colors">
                 使用指南
               </a>
@@ -282,13 +285,18 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="text-center mt-8">
-            <p className="text-sm text-slate-500 mb-2">
-              打开网页版也可以直接用——粘贴差评进来，AI 生成回复后复制回去
+          <div className="text-center mt-8 space-y-3">
+            <p className="text-sm text-slate-400">
+              还没用过插件？试试看 —— 比复制粘贴快 10 倍
             </p>
-            <a href="/dashboard/reviews" className="text-indigo-400 text-sm hover:underline">
-              去网页版差评处理 →
-            </a>
+            <div className="flex justify-center gap-4">
+              <a href="/plugin" className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors">
+                📖 查看插件详情
+              </a>
+              <a href="/dashboard/reviews" className="px-6 py-2.5 rounded-xl border border-slate-600 text-slate-300 text-sm font-medium hover:bg-slate-800 transition-colors">
+                去网页版直接试 →
+              </a>
+            </div>
           </div>
         </div>
       </section>
