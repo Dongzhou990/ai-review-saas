@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>口碑助手 - Hero</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 630px; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  }
+  .card {
+    width: 1200px; height: 630px;
+    background: linear-gradient(135deg, #FFF8F0 0%, #FFECD2 30%, #FFE4C4 60%, #FFF0E0 100%);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Decorative circles */
+  .circle-1 {
+    position: absolute; top: -120px; right: -80px;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,140,66,0.15) 0%, transparent 70%);
+  }
+  .circle-2 {
+    position: absolute; bottom: -100px; left: -60px;
+    width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,107,53,0.1) 0%, transparent 70%);
+  }
+  .circle-3 {
+    position: absolute; top: 40%; left: 50%;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,184,108,0.12) 0%, transparent 70%);
+  }
+  /* Star decorations */
+  .star { position: absolute; color: #FFB86C; font-size: 20px; opacity: 0.6; }
+  .star:nth-child(4) { top: 60px; left: 80px; }
+  .star:nth-child(5) { top: 120px; right: 120px; font-size: 14px; }
+  .star:nth-child(6) { bottom: 100px; right: 200px; font-size: 16px; }
+  .star:nth-child(7) { bottom: 180px; left: 180px; font-size: 12px; }
+  /* Content */
+  .content { position: relative; z-index: 10; text-align: center; padding: 60px; }
+  .badge {
+    display: inline-block; background: linear-gradient(135deg, #FF6B35, #FF8C42);
+    color: #fff; padding: 8px 24px; border-radius: 20px;
+    font-size: 16px; font-weight: 600; margin-bottom: 28px;
+    letter-spacing: 2px;
+  }
+  .title {
+    font-size: 64px; font-weight: 900; color: #2D1B0E;
+    line-height: 1.2; margin-bottom: 16px;
+    letter-spacing: 3px;
+  }
+  .title span {
+    background: linear-gradient(135deg, #FF6B35, #E8551A);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    font-size: 24px; color: #8B6F5E; font-weight: 400;
+    margin-bottom: 36px; line-height: 1.5;
+  }
+  .features-row {
+    display: flex; gap: 24px; justify-content: center; margin-bottom: 40px;
+  }
+  .feature-chip {
+    background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,140,66,0.2);
+    padding: 12px 24px; border-radius: 12px;
+    font-size: 17px; color: #5D3A1A; font-weight: 500;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .feature-chip .icon { font-size: 22px; }
+  .cta {
+    display: inline-block; background: linear-gradient(135deg, #FF6B35, #E8551A);
+    color: #fff; padding: 16px 48px; border-radius: 30px;
+    font-size: 22px; font-weight: 700; text-decoration: none;
+    box-shadow: 0 8px 30px rgba(255,107,53,0.3);
+    letter-spacing: 1px;
+  }
+  .bottom-text {
+    margin-top: 20px; font-size: 15px; color: #B8956E;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="circle-1"></div>
+  <div class="circle-2"></div>
+  <div class="circle-3"></div>
+  <span class="star">✦</span>
+  <span class="star">✦</span>
+  <span class="star">✦</span>
+  <span class="star">✦</span>
+  <div class="content">
+    <div class="badge">🛡️ AI 口碑管理</div>
+    <h1 class="title">差评秒回 · <span>口碑助手</span></h1>
+    <p class="subtitle">AI 帮你 10 秒生成真诚回复，让每条差评变成加分项</p>
+    <div class="features-row">
+      <div class="feature-chip"><span class="icon">⚡</span> 10秒生成</div>
+      <div class="feature-chip"><span class="icon">🎯</span> 精准贴心</div>
+      <div class="feature-chip"><span class="icon">🆓</span> 每天免费</div>
+    </div>
+    <a class="cta" href="https://reviewai.chat">免费试用 →</a>
+    <p class="bottom-text">不绑卡 · ¥99/月无限用 · 餐饮/酒店/美容都在用</p>
+  </div>
+</div>
+</body>
+</html>

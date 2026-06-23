@@ -1,0 +1,14 @@
+{
+  "name": "demo-video-edit",
+  "version": "1.0.0",
+  "width": 1440,
+  "height": 900,
+  "fps": 25,
+  "media": {
+    "landing": "media/landing.png",
+    "register": "media/register.png",
+    "reviews": "media/reviews.png",
+    "invite": "media/invite.png",
+    "dashboard": "media/dashboard.png"
+  }
+}

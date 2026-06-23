@@ -269,6 +269,19 @@ CREATE TRIGGER tg_meeting_action_items_updated_at
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- ============================================
+-- MVP: Paid phones whitelist (for WeChat Pay manual activation)
+-- No auth required — users verify by phone number
+-- ============================================
+CREATE TABLE IF NOT EXISTS paid_phones (
+  phone TEXT PRIMARY KEY,
+  expires_at TIMESTAMPTZ NOT NULL,
+  duration_days INT NOT NULL DEFAULT 14,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_paid_phones_expires ON paid_phones(expires_at);
+
+-- ============================================
 -- Migration: Remove hardcoded platform CHECK for global scalability
 -- Run these after adding the application-level validation:
 --

@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Logo } from "@/components/logo";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,7 +14,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,40 +33,43 @@ export default function LoginPage() {
         setError(data.error || "登录失败");
         setLoading(false);
       } else {
-        router.push("/dashboard/reviews");
-        router.refresh();
+        // Use hard navigation to ensure new auth cookies are picked up
+        window.location.href = "/dashboard/reviews";
       }
-    } catch {
+    } catch (err) {
+      console.error("Login error:", err);
       setError("网络错误，请重试");
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-neutral-950 to-indigo-950 px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-black px-4">
+      <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link href="/">
-            <Logo size={36} />
+            <Logo size={32} />
           </Link>
         </div>
-        <Card>
+        <Card className="border-neutral-800 bg-neutral-950">
           <CardHeader>
-            <CardTitle className="text-2xl">登录口碑助手</CardTitle>
-            <CardDescription>管理门店口碑，从登录开始</CardDescription>
+            <CardTitle className="text-xl">登录口碑助手</CardTitle>
+            <CardDescription className="text-neutral-500">管理门店口碑，从登录开始</CardDescription>
           </CardHeader>
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
               {error && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
+                <div className="p-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg">
                   {error}
                 </div>
               )}
               <div className="space-y-2">
-                <Label htmlFor="email">邮箱</Label>
+                <Label htmlFor="email" className="text-neutral-300">邮箱</Label>
                 <Input
                   id="email"
                   type="email"
+                  inputMode="email"
+                  autoComplete="email"
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -76,21 +77,23 @@ export default function LoginPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">密码</Label>
+                <Label htmlFor="password" className="text-neutral-300">密码</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
                     placeholder="输入密码"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="pr-10"
+                    className="pr-12"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 p-2 text-neutral-500 hover:text-neutral-300 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    aria-label={showPassword ? "隐藏密码" : "显示密码"}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -102,11 +105,9 @@ export default function LoginPage() {
                 {loading ? "登录中..." : "登录"}
               </Button>
 
-              
-
-              <p className="text-sm text-slate-400 text-center">
+              <p className="text-sm text-neutral-500 text-center">
                 还没有账号？{" "}
-                <Link href="/register" className="text-blue-600 hover:underline">
+                <Link href="/register" className="text-blue-400 hover:underline">
                   免费注册
                 </Link>
               </p>

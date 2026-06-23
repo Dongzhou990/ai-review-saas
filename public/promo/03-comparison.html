@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>口碑助手 - 前后对比</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 800px; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  }
+  .card {
+    width: 1200px; height: 800px;
+    background: linear-gradient(160deg, #F8F6F3 0%, #FFF5ED 50%, #FEF0E1 100%);
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 50px 80px;
+    position: relative; overflow: hidden;
+  }
+  .bg-dot {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: radial-gradient(rgba(255,140,66,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .header { position: relative; z-index: 10; text-align: center; margin-bottom: 36px; }
+  .header h2 {
+    font-size: 42px; font-weight: 900; color: #2D1B0E; letter-spacing: 2px;
+  }
+  .header h2 span {
+    background: linear-gradient(135deg, #FF6B35, #E8551A);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header p { font-size: 18px; color: #8B6F5E; margin-top: 8px; }
+  .comparison {
+    position: relative; z-index: 10; display: flex; gap: 32px;
+    width: 100%; max-width: 1000px;
+  }
+  .panel {
+    flex: 1; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+    background: #fff;
+  }
+  .panel-header {
+    padding: 16px 24px; font-size: 18px; font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .panel-before .panel-header { background: #FFF0E5; color: #D4743A; }
+  .panel-after  .panel-header { background: #E8F5E9; color: #2E7D32; }
+  .panel-body { padding: 24px; }
+  .review-card {
+    background: #F9F9F9; border-radius: 12px; padding: 20px;
+    border-left: 4px solid #FF6B35;
+  }
+  .review-stars { color: #FF6B35; font-size: 14px; margin-bottom: 8px; }
+  .review-text { font-size: 15px; color: #5D3A1A; line-height: 1.7; }
+  .review-author { font-size: 13px; color: #999; margin-top: 12px; }
+  .reply-card {
+    margin-top: 20px; background: #F0F9F0; border-radius: 12px;
+    padding: 20px; border-left: 4px solid #4CAF50;
+  }
+  .reply-label {
+    font-size: 13px; font-weight: 700; color: #4CAF50;
+    margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+  }
+  .reply-text { font-size: 15px; color: #2E3B2E; line-height: 1.7; }
+  .before-reply {
+    margin-top: 20px; background: #FFF0E5;
+    border-radius: 12px; padding: 20px; border-left: 4px solid #CCC;
+  }
+  .before-reply .reply-label { color: #999; }
+  .before-reply .reply-text { color: #999; font-style: italic; }
+  .vs-divider {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 8px;
+  }
+  .vs-circle {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(135deg, #FF6B35, #E8551A);
+    color: #fff; font-size: 18px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(255,107,53,0.3);
+  }
+  .vs-time { font-size: 14px; color: #FF6B35; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="bg-dot"></div>
+  <div class="header">
+    <h2><span>真人级</span>回复 vs 机械回复</h2>
+    <p>一条差评，两种回复，高下立判</p>
+  </div>
+  <div class="comparison">
+    <!-- Before: Generic Reply -->
+    <div class="panel panel-before">
+      <div class="panel-header">❌ 传统机械回复</div>
+      <div class="panel-body">
+        <div class="review-card">
+          <div class="review-stars">⭐ 1.0</div>
+          <div class="review-text">
+            来你们家吃了三次了，这次真的太失望了。上菜等了40分钟，鱼香肉丝咸得齁，服务员态度也爱答不理的。再也不会来了！
+          </div>
+          <div class="review-author">— 大众点评用户 · 2小时前</div>
+        </div>
+        <div class="before-reply">
+          <div class="reply-label">↩ 商家回复</div>
+          <div class="reply-text">
+            亲，感谢您的反馈，我们会努力改进的，期待您的再次光临！🙏
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- VS -->
+    <div class="vs-divider">
+      <div class="vs-circle">VS</div>
+      <div class="vs-time">10秒生成</div>
+    </div>
+    <!-- After: AI Reply -->
+    <div class="panel panel-after">
+      <div class="panel-header">✅ 口碑助手 AI 回复</div>
+      <div class="panel-body">
+        <div class="review-card">
+          <div class="review-stars">⭐ 1.0</div>
+          <div class="review-text">
+            来你们家吃了三次了，这次真的太失望了。上菜等了40分钟，鱼香肉丝咸得齁，服务员态度也爱答不理的。再也不会来了！
+          </div>
+          <div class="review-author">— 大众点评用户 · 2小时前</div>
+        </div>
+        <div class="reply-card">
+          <div class="reply-label">↩ 口碑助手 AI 回复</div>
+          <div class="reply-text">
+            王女士，真的非常抱歉这次让您失望了 🙏 您是老顾客，却给您这样的体验，我们自己都觉得说不过去。<br><br>
+            关于上菜慢和菜品口味的问题，我已经反馈给厨师长和店长，今天就在整改。我们会对当班服务员进行培训考核，绝不让这种情况再发生。<br><br>
+            为表示歉意，想请您下次来店里免费品尝我们的招牌菜——是我们的一点心意。方便的话可以私信联系我，我来安排 🍜
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -46,40 +46,65 @@ export default function DashboardPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-10">
 
-      {/* ── Hero Banner ── */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-950 border border-neutral-800 p-8">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-cyan-500/10 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-violet-500/10 to-transparent rounded-full blur-3xl" />
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" />
-              </svg>
+      {/* ── Empty State: First-time user onboarding ── */}
+      {stats.empty ? (
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#2A1F1D] via-[#2D2320] to-[#261C1A] border border-[#3D2C2A] p-8 sm:p-10">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#D4725A]/10 to-transparent rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-[#E8A87C]/8 to-transparent rounded-full blur-3xl" />
+          <div className="relative text-center max-w-lg mx-auto">
+            <div className="text-5xl mb-4">💆‍♀️</div>
+            <h1 className="text-2xl font-bold text-white mb-2">欢迎！你的口碑助手准备好了 ✨</h1>
+            <p className="text-neutral-400 mb-6 text-sm leading-relaxed">
+              把大众点评/美团上的差评粘贴进来，AI 帮你 10 秒回好。<br />
+              先试试看 —— <span className="text-[#D4725A] font-medium">把最近一条差评粘贴到下面</span>
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <a href="/dashboard/reviews" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#D4725A] to-[#C05A42] text-white font-medium shadow-lg shadow-[#D4725A]/20 hover:shadow-[#D4725A]/30 transition-all">
+                💬 处理差评，10 秒出回复
+              </a>
+              <a href="/demo" target="_blank" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-[#3D2C2A] text-neutral-300 font-medium hover:bg-white/5 transition-colors">
+                👀 先看演示，不用注册也能试
+              </a>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">门店口碑总览</h1>
-              <p className="text-sm text-neutral-400">
-                {stats.empty ? "导入第一条评论，开启口碑管理" : "一眼看清门店口碑全貌"}
-              </p>
-            </div>
-          </div>
-
-          {/* Stat pills */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-            {metrics.map((m) => (
-              <div key={m.label} className={`relative overflow-hidden rounded-2xl bg-black/40 border border-white/5 p-4 ${m.glow} transition-all hover:scale-[1.02]`}>
-                <div className={`absolute top-0 right-0 w-16 h-16 bg-gradient-to-br ${m.gradient} opacity-10 rounded-bl-full`} />
-                <p className={`text-3xl font-black bg-gradient-to-r ${m.gradient} bg-clip-text text-transparent`}>{m.value}</p>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-xs text-neutral-400">{m.label}</span>
-                  <span className="text-[10px] text-neutral-600">{m.sub}</span>
-                </div>
-              </div>
-            ))}
+            <p className="mt-4 text-xs text-neutral-600">
+              也可以先看看 <a href="/dashboard/analysis" className="text-[#D4725A] underline">差评分析</a> 和 <a href="/dashboard/invite" className="text-[#D4725A] underline">好评邀约</a> 功能
+            </p>
           </div>
         </div>
-      </div>
+      ) : (
+        /* ── Hero Banner (has data) ── */
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-950 border border-neutral-800 p-8">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-cyan-500/10 to-transparent rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-violet-500/10 to-transparent rounded-full blur-3xl" />
+          <div className="relative">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">门店口碑总览</h1>
+                <p className="text-sm text-neutral-400">一眼看清门店口碑全貌</p>
+              </div>
+            </div>
+
+            {/* Stat pills */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+              {metrics.map((m) => (
+                <div key={m.label} className={`relative overflow-hidden rounded-2xl bg-black/40 border border-white/5 p-4 ${m.glow} transition-all hover:scale-[1.02]`}>
+                  <div className={`absolute top-0 right-0 w-16 h-16 bg-gradient-to-br ${m.gradient} opacity-10 rounded-bl-full`} />
+                  <p className={`text-3xl font-black bg-gradient-to-r ${m.gradient} bg-clip-text text-transparent`}>{m.value}</p>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-xs text-neutral-400">{m.label}</span>
+                    <span className="text-[10px] text-neutral-600">{m.sub}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Quick Actions ── */}
       <div>

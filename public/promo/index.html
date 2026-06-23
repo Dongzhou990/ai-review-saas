@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>口碑助手 · 产品介绍图预览</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #1A1A2E; color: #fff; padding: 40px;
+  }
+  h1 { text-align: center; font-size: 36px; margin-bottom: 8px; }
+  h1 span { color: #FF8C42; }
+  .sub { text-align: center; color: #999; margin-bottom: 40px; font-size: 16px; }
+  .gallery {
+    display: flex; flex-direction: column; gap: 32px;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .image-card {
+    background: #222; border-radius: 16px; overflow: hidden;
+    border: 1px solid #333;
+  }
+  .image-card .label {
+    padding: 12px 20px; background: #2A2A3E;
+    font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .image-card .label .num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, #FF6B35, #E8551A);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 900;
+  }
+  .image-card iframe {
+    width: 100%; border: none; display: block;
+  }
+  .tips {
+    max-width: 1200px; margin: 40px auto 0;
+    background: #2A2A3E; border-radius: 16px; padding: 28px;
+    border: 1px solid #333;
+  }
+  .tips h3 { font-size: 20px; margin-bottom: 12px; color: #FF8C42; }
+  .tips ol { padding-left: 20px; color: #ccc; line-height: 2; }
+  .tips code {
+    background: #1A1A2E; padding: 2px 8px; border-radius: 4px;
+    color: #FFB86C; font-size: 14px;
+  }
+</style>
+</head>
+<body>
+  <h1>口碑助手 · <span>产品介绍图</span></h1>
+  <p class="sub">4 张高质量宣传图，可直接截图用于朋友圈、微信群、小红书</p>
+
+  <div class="gallery">
+    <div class="image-card">
+      <div class="label"><span class="num">1</span> Hero 主视觉 · 产品介绍</div>
+      <iframe src="01-hero.html" width="1200" height="630" loading="lazy"></iframe>
+    </div>
+    <div class="image-card">
+      <div class="label"><span class="num">2</span> 功能展示 · 三大核心功能</div>
+      <iframe src="02-features.html" width="1200" height="630" loading="lazy"></iframe>
+    </div>
+    <div class="image-card">
+      <div class="label"><span class="num">3</span> 前后对比 · Before vs After</div>
+      <iframe src="03-comparison.html" width="1200" height="800" loading="lazy"></iframe>
+    </div>
+    <div class="image-card">
+      <div class="label"><span class="num">4</span> 定价方案 · 免费版 vs 专业版</div>
+      <iframe src="04-pricing.html" width="800" height="600" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div class="tips">
+    <h3>📸 如何使用这些图</h3>
+    <ol>
+      <li>启动本地服务：<code>npm run dev</code></li>
+      <li>打开预览：<code>http://localhost:3000/promo/</code></li>
+      <li>单独打开某张图：<code>http://localhost:3000/promo/01-hero.html</code></li>
+      <li>用浏览器截图工具或 <code>Cmd+Shift+4</code> 截取</li>
+      <li>如需改文案/颜色/尺寸，编辑 <code>public/promo/</code> 下的 HTML 文件</li>
+    </ol>
+  </div>
+</body>
+</html>
