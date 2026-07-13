@@ -282,6 +282,28 @@ CREATE TABLE IF NOT EXISTS paid_phones (
 CREATE INDEX IF NOT EXISTS idx_paid_phones_expires ON paid_phones(expires_at);
 
 -- ============================================
+-- CRM: Leads tracking (for sales pipeline)
+-- ============================================
+CREATE TABLE IF NOT EXISTS leads (
+  id BIGSERIAL PRIMARY KEY,
+  store_name TEXT NOT NULL,
+  contact_name TEXT,
+  phone TEXT,
+  platform TEXT DEFAULT '大众点评',
+  rating DECIMAL(2,1),
+  industry TEXT,
+  status TEXT DEFAULT 'new' CHECK (status IN ('new','contacted','demoed','negotiating','won','lost')),
+  notes TEXT,
+  source TEXT DEFAULT 'manual',
+  last_contact_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status);
+CREATE INDEX IF NOT EXISTS idx_leads_updated ON leads(updated_at DESC);
+
+-- ============================================
 -- Migration: Remove hardcoded platform CHECK for global scalability
 -- Run these after adding the application-level validation:
 --

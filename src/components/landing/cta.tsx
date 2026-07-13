@@ -22,7 +22,7 @@ export function CTASection() {
             <ArrowRight className="w-5 h-5" />
           </Button>
         </Link>
-        <p className="text-xs text-neutral-600">
+        <p className="text-xs text-neutral-500">
           30 秒注册 · 每天 3 条免费 · 不满意可以不付费
         </p>
       </div>

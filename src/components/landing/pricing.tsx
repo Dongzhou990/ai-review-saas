@@ -11,48 +11,51 @@ const plans = [
     price: "¥0",
     period: "每天3条",
     desc: "先试试效果，不绑卡",
-    features: ["每天 3 条 AI 回复", "AI 差评分析", "好评邀约文案"],
+    features: ["每天 3 条 AI 回复", "8 种回复风格", "差评 + 好评都支持"],
     cta: "免费开始用",
-    href: "/register",
+    href: "/demo",
     plan: "free" as const,
   },
   {
-    name: "体验版",
-    price: "¥199",
-    period: "/14天",
-    desc: "两周深度体验，满意再续",
-    features: [
-      "14 天无限次 AI 回复",
-      "AI 差评归因分析",
-      "门店改进建议",
-      "每周口碑周报",
-    ],
-    cta: "¥199 体验两周",
-    href: "/register",
-    plan: "trial" as const,
-    popular: true,
-  },
-  {
-    name: "专业版",
-    price: "¥599",
+    name: "月度版",
+    price: "¥99",
     period: "/月",
-    desc: "适合认真做口碑的门店",
+    desc: "按月付费 · 随时可停",
     features: [
       "无限 AI 回复",
+      "8 种回复风格随意切换",
       "AI 差评归因分析",
-      "门店改进建议",
       "每周口碑周报",
-      "好评邀约文案无限用",
+      "好评邀约文案",
       "微信 1v1 咨询",
     ],
-    cta: "升级专业版",
-    href: "/register",
-    plan: "pro" as const,
+    cta: "¥99/月 开通",
+    plan: "monthly" as const,
+    planType: "monthly" as const,
+  },
+  {
+    name: "年度版",
+    price: "¥299",
+    period: "/年",
+    desc: "立省 ¥889 · 相当于 ¥25/月",
+    features: [
+      "月度版全部功能",
+      "无限 AI 回复",
+      "8 种回复风格随意切换",
+      "AI 差评归因分析 + 每周周报",
+      "好评邀约文案",
+      "微信 1v1 优先咨询",
+    ],
+    cta: "¥299/年 立即开通",
+    plan: "yearly" as const,
+    planType: "yearly" as const,
+    popular: true,
   },
 ];
 
 export function PricingSection() {
   const [showWechat, setShowWechat] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{name: string; price: string; planType: string} | null>(null);
   const [copied, setCopied] = useState(false);
 
   return (
@@ -108,7 +111,7 @@ export function PricingSection() {
                   ))}
                 </ul>
 
-                {plan.plan === "free" || plan.plan === "trial" ? (
+                {plan.plan === "free" ? (
                   <Link href={plan.href}>
                     <Button
                       variant={plan.popular ? "primary" : "outline"}
@@ -123,7 +126,10 @@ export function PricingSection() {
                     variant="primary"
                     size="md"
                     className="w-full"
-                    onClick={() => setShowWechat(true)}
+                    onClick={() => {
+                      setSelectedPlan({ name: plan.name, price: plan.price, planType: plan.planType });
+                      setShowWechat(true);
+                    }}
                   >
                     {plan.cta}
                   </Button>
@@ -132,7 +138,7 @@ export function PricingSection() {
             ))}
           </div>
 
-          <p className="text-center mt-5 text-xs text-neutral-600">
+          <p className="text-center mt-5 text-xs text-neutral-500">
             也可以先试试{" "}
             <Link href="/demo" className="text-blue-400 underline">
               免注册演示
@@ -153,7 +159,7 @@ export function PricingSection() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">升级专业版 · ¥599/月</h2>
+              <h2 className="text-lg font-bold">{selectedPlan?.name} · {selectedPlan?.price}{selectedPlan?.planType === "yearly" ? "/年" : "/月"}</h2>
               <button
                 onClick={() => setShowWechat(false)}
                 className="p-2 hover:bg-neutral-800 rounded-lg -mr-2"
@@ -170,7 +176,7 @@ export function PricingSection() {
                 className="w-40 h-40 mx-auto rounded-lg object-cover"
               />
               <p className="text-sm text-neutral-400 mt-3">
-                微信扫码支付 <strong className="text-white">¥599</strong>
+                微信扫码支付 <strong className="text-white">{selectedPlan?.price || "¥99"}</strong>
               </p>
               <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-neutral-800 rounded-full text-sm">
                 <span className="text-neutral-300">Dongzhou526</span>
@@ -240,7 +246,7 @@ export function PricingSection() {
               我已付款，立即开通 Pro
             </button>
 
-            <p className="text-xs text-neutral-600 text-center mt-2">
+            <p className="text-xs text-neutral-500 text-center mt-2">
               💡 付款后点击上方按钮即可开通
             </p>
           </div>

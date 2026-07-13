@@ -1,7 +1,0 @@
-{
-  "tool_name": "WebFetch",
-  "tool_input_preview": "{\"url\":\"http://localhost:3000\",\"prompt\":\"What does this page render? Check the page title, main heading, and overall structure. Is it rendering correctly?\"}",
-  "error": "Invalid URL",
-  "timestamp": "2026-06-22T11:02:03.746Z",
-  "retry_count": 1
-}

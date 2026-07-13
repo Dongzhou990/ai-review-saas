@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         if (entry.count >= MAX_DEMO_PER_DAY) {
           return NextResponse.json(
             {
-              error: "今日免费次数已用完（3次/天）。扫码付款 ¥199 即可无限使用 👇",
+              error: "今日免费次数已用完（3次/天）。¥99/月 即可无限使用 👇",
               limitReached: true,
             },
             { status: 429 }

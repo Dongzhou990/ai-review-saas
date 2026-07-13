@@ -53,7 +53,7 @@ export function StepsSection() {
                 <p className="text-xs text-neutral-500 mt-0.5">{item.desc}</p>
               </div>
               {i < steps.length - 1 && (
-                <div className="hidden sm:block text-neutral-700 text-xl">↓</div>
+                <div className="hidden sm:block text-neutral-500 text-xl">↓</div>
               )}
             </div>
           ))}

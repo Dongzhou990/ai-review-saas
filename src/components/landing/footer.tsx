@@ -13,19 +13,19 @@ export function Footer() {
         <p className="text-xs text-neutral-500">
           © 2026 口碑助手 · 美业门店口碑运营助手
         </p>
-        <p className="text-xs text-neutral-700 mt-1 mb-3">
+        <p className="text-xs text-neutral-400 mt-1 mb-3">
           帮皮肤管理·美甲美睫·美容美发老板管好线上口碑
         </p>
         <div className="flex items-center justify-center gap-4">
           <Link
             href="/privacy"
-            className="text-xs text-neutral-600 hover:text-neutral-400"
+            className="text-xs text-neutral-500 hover:text-neutral-300"
           >
             隐私政策
           </Link>
           <Link
             href="/terms"
-            className="text-xs text-neutral-600 hover:text-neutral-400"
+            className="text-xs text-neutral-500 hover:text-neutral-300"
           >
             服务条款
           </Link>

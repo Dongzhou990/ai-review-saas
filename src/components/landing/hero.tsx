@@ -41,7 +41,7 @@ export function HeroSection() {
             ))}
           </span>
           <span>200+ 门店在用</span>
-          <span className="text-neutral-700">|</span>
+          <span className="text-neutral-500">|</span>
           <span>不用绑卡</span>
         </div>
 
@@ -60,7 +60,7 @@ export function HeroSection() {
           </Link>
         </div>
 
-        <p className="mt-4 text-xs text-neutral-600">
+        <p className="mt-4 text-xs text-neutral-500">
           免费版每天 3 条 · 不用绑卡 · 手机就能用
         </p>
       </div>

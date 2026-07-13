@@ -17,7 +17,7 @@ export default function AdminPage() {
   const [phones, setPhones] = useState<PaidPhone[]>([]);
   const [loading, setLoading] = useState(true);
   const [newPhone, setNewPhone] = useState("");
-  const [newDays, setNewDays] = useState(14);
+  const [newDays, setNewDays] = useState(30);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [msg, setMsg] = useState("");
@@ -128,7 +128,7 @@ export default function AdminPage() {
   if (!authed) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-sm border p-8 max-w-sm w-full mx-4">
+        <div className="bg-white rounded-2xl shadow-sm border p-8 max-w-sm w-full mx-4 text-gray-900">
           <div className="flex items-center gap-2 mb-6">
             <Shield className="w-6 h-6 text-[#D4725A]" />
             <h1 className="text-xl font-bold text-[#3D2220]">口碑助手 · 后台</h1>
@@ -152,7 +152,7 @@ export default function AdminPage() {
 
   // Admin dashboard
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 text-gray-900">
       <div className="max-w-2xl mx-auto space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -191,8 +191,8 @@ export default function AdminPage() {
               onChange={(e) => setNewDays(+e.target.value)}
               className="w-24 h-10 rounded-xl border border-gray-200 px-2 text-sm focus:outline-none"
             >
+              <option value={30}>30天（推荐）</option>
               <option value={14}>14天</option>
-              <option value={30}>30天</option>
               <option value={90}>90天</option>
               <option value={365}>365天</option>
             </select>
