@@ -1,12 +1,17 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { Logo, LogoIcon } from "@/components/logo";
 import {
+  Rocket, useState, useRef, useEffect, useCallback } from "react";
+import Link from "next/link";
+import {
+  Rocket, usePathname } from "next/navigation";
+import {
+  Rocket, createClient } from "@/lib/supabase/client";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  Rocket, Logo, LogoIcon } from "@/components/logo";
+import {
+  Rocket,
   LayoutDashboard,
   MessageSquare,
   BarChart3,
@@ -25,6 +30,7 @@ const navItems = [
   { href: "/dashboard/analysis", label: "差评分析", icon: BarChart3 },
   { href: "/dashboard/invite", label: "好评邀约", icon: Sparkles },
   { href: "/dashboard/weekly", label: "每周周报", icon: ClipboardList },
+  { href: "/dashboard/acquisition", label: "AI 获客", icon: Rocket },
   { href: "/dashboard/settings", label: "门店设置", icon: Settings },
 ];
 
