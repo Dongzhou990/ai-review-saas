@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Radio,
   Rocket, useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
@@ -31,6 +32,7 @@ const navItems = [
   { href: "/dashboard/invite", label: "好评邀约", icon: Sparkles },
   { href: "/dashboard/weekly", label: "每周周报", icon: ClipboardList },
   { href: "/dashboard/acquisition", label: "AI 获客", icon: Rocket },
+  { href: "/dashboard/monitor", label: "实时监控", icon: Radio },
   { href: "/dashboard/settings", label: "门店设置", icon: Settings },
 ];
 
